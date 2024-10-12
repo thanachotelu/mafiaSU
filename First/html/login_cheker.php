@@ -1,52 +1,51 @@
 <?php
-include "connection.php"
 
-/*
-อ่านก่อนเด้อ
-
-chat gen ให้
-
-ยังไม่รู้ว่าจะใช้ได้ไหมนะ
-*/
+$servername = "localhost";
+$username = "appraisal_user";
+$password = "your_strong_password";
+$dbname = "appraisal";
+$port = "5432"; 
 
 try {
-    $conn = new PDO("pgsql:host=$servername;dbname=$dbname", $username, $password);
+    // Create a new PDO connection
+    $conn = new PDO("pgsql:host={$servername};port={$port};dbname={$dbname}", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // echo "Connection successful!"; // Uncomment to test connection
 } catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    echo "Connection failed: " . $e->getMessage();
 }
 
-// Fetch form data
+// Fetch form data if POST request is made
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $jobPosition = $_POST['jobPosition'];
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $firstname = $_POST["username"];
 
-    // Example: Checking credentials based on job position
-    $sql = "SELECT * FROM users WHERE username = :username AND job_position = :jobPosition";
+    // Prepare the SQL statement using PDO
+    $sql = "SELECT * FROM employees WHERE firstname = :firstname";
+
+    // Prepare and execute the statement securely to prevent SQL injection
     $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':username', $username);
-    $stmt->bindParam(':jobPosition', $jobPosition);
+    $stmt->bindParam(':firstname', $firstname);
     $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // If user exists and password matches
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['jobPosition'] = $user['job_position'];
+    // Fetch the result
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Redirect based on job position
-        if ($jobPosition == 'employees') {
-            header("Location: employee_dashboard.php");
-        } elseif ($jobPosition == 'hr') {
-            header("Location: hr_dashboard.php");
-        } elseif ($jobPosition == 'ceo') {
-            header("Location: ceo_dashboard.php");
+    // Check job_id and redirect accordingly
+    if ($row) {
+        if ($row["job_id"] == 3) {
+            header("Location: ceo-dashboard.php");
+            exit();
+        } else if ($row["job_id"] == 2) {
+            header("Location: hr-dashboard.php");
+            exit();
+        } else if ($row["job_id"] == 1) {
+            header("Location: emp-forms.php");
+            exit();
         }
-        exit();
     } else {
-        // Invalid login
-        echo "Invalid username or password.";
+        echo '<script>
+                  alert("First name or password incorrect")
+              </script>';
     }
 }
 ?>

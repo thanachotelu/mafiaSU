@@ -21,28 +21,29 @@
             <div class="card mb-0">
               <div class="card-body">
                 <a href="./index.html" class="text-nowrap logo-img text-center d-block py-3 w-100">
-                  <img src="../assets/images/logos/dark-logo.svg" width="180" alt="">
+                  <img src="../assets/images/logos/appraisal.png" width="180" alt="">
                 </a>
-                <form>
+                <form action="login_cheker.php" method="POST">
                   <div class="mb-3">
-                    <label for="jobPosition" class="form-label">Job Position</label>
-                    <select class="form-select" id="jobPosition" require>
-                      <option value="" disabled selected>Select your job position</option>
-                      <option value="employees">Employees</option>
-                      <option value="hr">HR (Human Resources)</option>
-                      <option value="ceo">CEO</option>
-                    </select>
+                      <label for="jobPosition" class="form-label">Job Position</label>
+                      <select class="form-select" id="jobPosition" name="jobPosition" required>
+                          <option value="" disabled selected>Select your job position</option>
+                          <option value="employees">Employees</option>
+                          <option value="hr">HR (Human Resources)</option>
+                          <option value="ceo">CEO</option>
+                      </select>
                   </div>
                   <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="email" class="form-control" id="username" aria-describedby="emailHelp" require>
+                        <label for="username" class="form-label">Username</label>
+                        <input  class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
                   </div>
-                  <div class="mb-4">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" require>
-                  </div>
-                  <a href="dashboard.php" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Sign In</a>
+                  <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Sign In</button>
                 </form>
+
               </div>
             </div>
           </div>
