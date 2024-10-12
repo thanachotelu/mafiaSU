@@ -30,7 +30,6 @@ create table form_appraisal (
     topic_id INTEGER not null,
     evaluator_id varchar(5) not null,
     evaluatee_id varchar(5) not null,
-    feedback varchar(255),
     constraint fk_evaluator foreign key (evaluator_id) references employees(e_id),
     constraint fk_evaluatee foreign key (evaluatee_id) references employees(e_id),
     constraint fk_topic_id foreign key (topic_id) references form_topic(topic_id)
@@ -62,6 +61,16 @@ create table form_topic2_info (
     adaptability_learning integer not null,
     constraint fk_form_id_info2 foreign key (form_id) references form_appraisal(form_id),
     constraint fk_topic_id_info2 foreign key (topic_id) references form_topic(topic_id)
+);
+
+create table feedback (
+    dept_id integer,
+    e_id varchar(5),
+    subjects varchar(255),
+    detail varchar(255),
+    feedback_date date,
+    constraint fk_feed_dept_id foreign key (dept_id) references departments(dept_id),
+    constraint fk_feed_e_id foreign key (e_id) references employees(e_id)
 );
 
 insert into jobs(job_id,job_name) 
@@ -98,11 +107,11 @@ insert into form_topic (topic_id,topic_name)
         (1,'ประเมินพฤติกรรมการปฏิบัติงาน'),
         (2,'ประเมิลพฤติกรรมของบุคคล');
 
-insert into form_appraisal (topic_id,evaluator_id,evaluatee_id,feedback)
+insert into form_appraisal (topic_id,evaluator_id,evaluatee_id)
     values
-        (1,'11111','00000','ทำงานได้ดีมาก ผมจะเพิ่มเงินเดือนให้คุณ'),
-        (2,'00000','11111','-'),
-        (2,'11111','22222','เป็นบุคคลตัวอย่างที่ดี ต่างกับผมสิ้นเชิง');
+        (1,'11111','00000'),
+        (2,'00000','11111'),
+        (2,'11111','22222');
 
 
 insert into form_topic1_info 
@@ -113,3 +122,7 @@ insert into form_topic2_info
     values
         (2,2,5,3,3,3,5,5,4),
         (3,2,5,5,5,5,5,5,5);
+
+insert into feedback
+    values
+        (1,'00000','การทำงานล่าช้า','ช่วงไม่เห็นทำงานเลย เอาแต่เล่นเกม TFT',TO_DATE('13/10/2024', 'DD/MM/YYYY'));
