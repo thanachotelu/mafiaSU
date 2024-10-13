@@ -47,7 +47,7 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./chief-feedback.php" aria-expanded="false">
+              <a class="sidebar-link" href="./feedback.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-layout-dashboard"></i>
                 </span>

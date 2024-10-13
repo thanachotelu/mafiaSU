@@ -64,7 +64,7 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./manager-feedback.php" aria-expanded="false">
+              <a class="sidebar-link" href="./feedback.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
                 </span>

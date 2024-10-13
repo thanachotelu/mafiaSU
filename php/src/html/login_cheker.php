@@ -1,7 +1,7 @@
 <?php
 session_start(); // Start the session at the beginning of the script
 
-$servername = "localhost";
+$servername = "db";
 $username = "appraisal_user";
 $password = "your_strong_password";
 $dbname = "appraisal";
