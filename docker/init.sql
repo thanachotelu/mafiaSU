@@ -64,11 +64,12 @@ create table form_topic2_info (
 );
 
 create table feedback (
+    f_id SERIAL PRIMARY KEY,
     dept_id integer,
     e_id varchar(5),
-    subjects varchar(255),
-    detail varchar(255),
-    feedback_date date,
+    subjects varchar(255) not null,
+    detail text not null,
+    feedback_date date not null,
     constraint fk_feed_dept_id foreign key (dept_id) references departments(dept_id),
     constraint fk_feed_e_id foreign key (e_id) references employees(e_id)
 );
@@ -123,6 +124,6 @@ insert into form_topic2_info
         (2,2,5,3,3,3,5,5,4),
         (3,2,5,5,5,5,5,5,5);
 
-insert into feedback
+insert into feedback (dept_id,e_id,subjects,detail,feedback_date)
     values
         (1,'00000','การทำงานล่าช้า','ช่วงไม่เห็นทำงานเลย เอาแต่เล่นเกม TFT',TO_DATE('13/10/2024', 'DD/MM/YYYY'));

@@ -32,13 +32,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check job_id and redirect accordingly
     if ($row) {
-        if ($row["job_id"] == 3) {
+        if ($row["job_id"] == 1) {
             header("Location: chief-forms.php");
             exit();
         } else if ($row["job_id"] == 2) {
             header("Location: manager-dashboard.php");
             exit();
-        } else if ($row["job_id"] == 1) {
+        } else if ($row["job_id"] == 3) {
             header("Location: officer-forms.php");
             exit();
         }
