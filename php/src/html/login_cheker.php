@@ -29,13 +29,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['user_firstname'] = $row['firstname'];
 
         if ($row["job_id"] == 1) {
-            header("Location: chief-forms.php");
+            header("Location: Chief/chief-forms.php");
             exit();
         } else if ($row["job_id"] == 2) {
-            header("Location: manager-dashboard.php");
+            header("Location: Manager/manager-dashboard.php");
             exit();
         } else if ($row["job_id"] == 3) {
-            header("Location: officer-forms.php");
+            header("Location: Officer/officer-forms.php");
             exit();
         }
     } else {
