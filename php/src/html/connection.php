@@ -1,6 +1,6 @@
 <?php
 
-$servername = "db";
+$servername = "localhost";
 $username = "appraisal_user";
 $password = "your_strong_password";
 $dbname = "appraisal";

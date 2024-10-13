@@ -121,13 +121,9 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
-                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                    <a href="./profile.php" class="d-flex align-items-center gap-2 dropdown-item">
                       <i class="ti ti-user fs-6"></i>
                       <p class="mb-0 fs-3">My Profile</p>
-                    </a>
-                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
-                      <i class="ti ti-mail fs-6"></i>
-                      <p class="mb-0 fs-3">My Account</p>
                     </a>
                     <a href="./index.php" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
                   </div>
@@ -141,177 +137,306 @@
       <div class="container-fluid">
         <!--  Row 1 -->
         <div class="row">
+          <!-- Column for Chart 1 and Chart 2 -->
           <div class="col-lg-8 d-flex align-items-strech">
             <div class="card w-100">
               <div class="card-body">
+                <!-- Chart 1 Overview -->
                 <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
                   <div class="mb-3 mb-sm-0">
-                    <h5 class="card-title fw-semibold">Chart Overview</h5>
+                    <h5 class="card-title fw-semibold">Chart From 1 Overview</h5>
                   </div>
                 </div>
-
                 <div class="container">
-                  <h2>Employee Evaluation Overview</h2>
-                  <!-- พื้นที่แสดงกราฟ -->
-                  <canvas id="evaluationChart" width="400" height="200"></canvas>
+                  <h2>Employee Evaluation Overview - Chart 1</h2>
+                  <canvas id="evaluationChart1" width="400" height="200"></canvas>
                 </div>
 
-                <!-- โค้ด JavaScript สำหรับการสร้างกราฟ -->
+                <!-- Chart 2 Overview -->
+                <div class="d-sm-flex d-block align-items-center justify-content-between mb-9 mt-5">
+                  <div class="mb-3 mb-sm-0">
+                    <h5 class="card-title fw-semibold">Chart From 2 Overview</h5>
+                  </div>
+                </div>
+                <div class="container">
+                  <h2>Employee Evaluation Overview - Chart 2</h2>
+                  <canvas id="evaluationChart2" width="400" height="200"></canvas>
+                </div>
+
+                <!-- JavaScript for Chart 1 and Chart 2 -->
                 <script>
-                  var ctx = document.getElementById('evaluationChart').getContext('2d');
-                  var evaluationChart = new Chart(ctx, {
-                    type: 'bar', // ชนิดของกราฟ bar
+                  // Chart 1
+                  var ctx1 = document.getElementById('evaluationChart1').getContext('2d');
+                  var evaluationChart1 = new Chart(ctx1, {
+                    type: 'bar',
                     data: {
-                      labels: [
-                        'Technical Skills',
-                        'Communication',
-                        'Problem Solving',
-                        'Teamwork',
-                        'Leadership',
-                        'Time Management', // หัวข้อการประเมินที่ 6
-                        'Creativity' // หัวข้อการประเมินที่ 7
-                      ], // ป้ายกำกับแต่ละแท่ง (หัวข้อการประเมิน)
-                      datasets: [
-                        {
-                          label: 'Evaluation Scores', // คำอธิบายกราฟ
-                          data: [85, 70, 95, 80, 88, 90, 92], // คะแนนของพนักงานคนเดียวตามหัวข้อการประเมิน
-                          backgroundColor: [
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)', // สีของหัวข้อ Time Management
-                            'rgba(54, 235, 162, 0.2)' // สีของหัวข้อ Creativity
-                          ], // สีของแต่ละแท่งกราฟ
-                          borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)', // สีขอบของหัวข้อ Time Management
-                            'rgba(54, 235, 162, 1)' // สีขอบของหัวข้อ Creativity
-                          ], // สีขอบของแต่ละแท่งกราฟ
-                          borderWidth: 1
-                        }
-                      ]
+                      labels: ['Job Perform', 'Quality of Work', 'Teamwork', 'Adaptability to Change', 'Time Management', 'Creativity', 'Policy Adherence and Regulations'],
+                      datasets: [{
+                        label: 'Evaluation Scores - Chart 1',
+                        data: [4, 3, 5, 4, 4, 5, 5], // ข้อมูลเป็นจำนวนเต็ม
+                        backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 235, 162, 0.5)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 235, 162, 1)'],
+                        borderWidth: 1
+                      }]
                     },
                     options: {
                       plugins: {
                         legend: {
-                          display: true, // กำหนดให้แสดงผล legend
+                          display: true,
                           labels: {
-                            color: 'black' // เปลี่ยนสีข้อความใน legend เป็นสีแดง
+                            color: 'black'
                           }
                         }
                       },
                       scales: {
                         x: {
                           ticks: {
-                            display: false // ปิดการแสดงผลของ ticks (labels) ที่อยู่ใต้กราฟ
+                            display: false
                           }
                         },
                         y: {
-                          beginAtZero: true, // เริ่มแกน Y จาก 0
-                          max: 100 // กำหนดค่าสูงสุดของแกน Y เป็น 100
+                          beginAtZero: true,
+                          max: 5 // แกน Y เป็น 5
+                        }
+                      }
+                    }
+                  });
+
+                  // Chart 2
+                  var ctx2 = document.getElementById('evaluationChart2').getContext('2d');
+                  var evaluationChart2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                      labels: ['Skills & Knowledge', 'Behavior & Attitude', 'Communication', 'Ability to Work Under Pressure', 'Leadership', 'Relationship', 'Adaptability to Learning'],
+                      datasets: [{
+                        label: 'Evaluation Scores - Chart 2',
+                        data: [4, 4, 5, 5, 4, 4, 5], // ข้อมูลเป็นจำนวนเต็ม
+                        backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(54, 235, 162, 0.5)'],
+                        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(54, 235, 162, 1)'],
+                        borderWidth: 1
+                      }]
+                    },
+                    options: {
+                      plugins: {
+                        legend: {
+                          display: true,
+                          labels: {
+                            color: 'black'
+                          }
+                        }
+                      },
+                      scales: {
+                        x: {
+                          ticks: {
+                            display: false
+                          }
+                        },
+                        y: {
+                          beginAtZero: true,
+                          max: 5 // แกน Y เป็น 5
                         }
                       }
                     }
                   });
                 </script>
-
               </div>
             </div>
           </div>
 
 
+          <!-- Column for Overview Summary -->
           <div class="col-lg-4">
             <div class="row">
-              <!-- Overview Summary Chart -->
+
+              <!-- Overview Summary for Chart 1 -->
               <div class="col-lg-12">
                 <div class="card overflow-hidden">
                   <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart</h5>
-                    <div class="row">
-                      <div class="col-12">
+                    <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 1</h5>
 
+                    <?php 
+                        // สมมุติข้อมูลขึ้นมา data: [4, 3, 5, 4, 4, 5, 5]
+                        $eval1 = 4; // คะแนนประเมิน 1
+                        $eval2 = 3; // คะแนนประเมิน 2
+                        $eval3 = 5; // คะแนนประเมิน 3
+                        $eval4 = 4; // คะแนนประเมิน 4
+                        $eval5 = 4; // คะแนนประเมิน 5
+                        $eval6 = 5; // คะแนนประเมิน 6
+                        $eval7 = 5; // คะแนนประเมิน 7
+                    ?>
+
+                    <div class="d-flex flex-column align-items-start">
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                          <span class="fs-3">Job Perform Score: 
+                          <span class="text-success">
+                            <?= $eval1 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                          <span class="fs-3">Quality of Work Score: 
+                          <span class="text-success">
+                            <?= $eval2 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                          <span class="fs-3">Teamwork Score: 
+                          <span class="text-success">
+                            <?= $eval3 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                          <span class="fs-3">Adaptability to Change Score: 
+                          <span class="text-success">
+                            <?= $eval4 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                          <span class="fs-3">Time Management Score: 
+                          <span class="text-success">
+                            <?= $eval5 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                          <span class="fs-3">Creativity Score: 
+                          <span class="text-success">
+                            <?= $eval6 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                          <span class="fs-3">Adherence to Policies and Regulations Score: 
+                          <span class="text-success">
+                            <?= $eval7 ?>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Overview Summary for Chart 2 -->
+              <div class="col-lg-12">
+                <div class="card overflow-hidden">
+                  <div class="card-body p-4">
+                    <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 1</h5>
+
+                    <?php 
+                        // สมมุติข้อมูลขึ้นมา data: [4, 4, 5, 5, 4, 4, 5], // ข้อมูลเป็นจำนวนเต็ม
+                        $eval8 = 4; // คะแนนประเมิน 1
+                        $eval9 = 4; // คะแนนประเมิน 2
+                        $eval10 = 5; // คะแนนประเมิน 3
+                        $eval11 = 5; // คะแนนประเมิน 4
+                        $eval12 = 4; // คะแนนประเมิน 5
+                        $eval13 = 4; // คะแนนประเมิน 6
+                        $eval14 = 5; // คะแนนประเมิน 7
+                    ?>
+
+                    <div class="d-flex flex-column align-items-start">
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(75, 192, 192, 0.5);"></span>
+                          <span class="fs-3">Skills & Knowledge Score: 
+                          <span class="text-success">
+                            <?= $eval8 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                          <span class="fs-3">Behavior & Attitude Score: 
+                          <span class="text-success">
+                            <?= $eval9 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                          <span class="fs-3">Communication Score: 
+                          <span class="text-success">
+                            <?= $eval10 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                          <span class="fs-3">Ability to Work Under Pressure Score: 
+                          <span class="text-success">
+                            <?= $eval11 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                          <span class="fs-3">Leadership Score: 
+                          <span class="text-success">
+                            <?= $eval12 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                          <span class="fs-3">Relationship Score: 
+                          <span class="text-success">
+                            <?= $eval13 ?>
+                          </span>
+                        </span>
+                      </div>
+                      <div class="mb-3">
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                          <span class="fs-3">Adaptability to Learning Score: 
+                          <span class="text-success">
+                            <?= $eval14 ?>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Number of Employees -->
+              <div class="col-lg-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row alig n-items-start">
+                      <div class="col-8">
+                        <h5 class="card-title mb-9 fw-semibold">Number of Employees</h5>
                         <?php 
-                        // สมมุติข้อมูลขึ้นมา
-                        $eval1 = 85; // คะแนนประเมิน 1
-                        $eval2 = 78; // คะแนนประเมิน 2
-                        $eval3 = 92; // คะแนนประเมิน 3
+                          //Query to get user count
+                          $sql = "SELECT COUNT(*) as users FROM employees";
+                          $query = $conn->prepare($sql);
+                          $query->execute();
+                          $fetch = $query->fetch(PDO::FETCH_ASSOC);                        
                         ?>
-
-                        <h4 class="fw-semibold mb-3">Total Employees Evaluated: 150</h4>
-                        <p class="text-dark fs-3 mb-3">Average Score: 85.6</p>
-
-                        <!-- จัดเรียงข้อมูลเป็นแนวตั้ง -->
-                        <div class="d-flex flex-column align-items-start">
-                          <div class="mb-3">
-                            <span class="round-8 bg-success rounded-circle me-2 d-inline-block"></span>
-                            <span class="fs-3">Evaluation 1 Score: <span class="text-success">
-                                <?= $eval1 ?>
-                              </span></span>
-                          </div>
-                          <div class="mb-3">
-                            <span class="round-8 bg-warning rounded-circle me-2 d-inline-block"></span>
-                            <span class="fs-3">Evaluation 2 Score: <span class="text-warning">
-                                <?= $eval2 ?>
-                              </span></span>
-                          </div>
-                          <div>
-                            <span class="round-8 bg-danger rounded-circle me-2 d-inline-block"></span>
-                            <span class="fs-3">Evaluation 3 Score: <span class="text-danger">
-                                <?= $eval3 ?>
-                              </span></span>
-                          </div>
-                        </div>
+                        <h4 class="fw-semibold mb-3">
+                          <?= $fetch['users']?>
+                        </h4>
                       </div>
-                      <div class="col-12 mt-4">
-                        <div class="d-flex justify-content-center">
-                          <div id="evaluation_chart"></div> <!-- สมมุติว่ามีกราฟที่แสดงสถิติ -->
+                      <div class="col-4">
+                        <div class="d-flex justify-content-end">
+                          <div
+                            class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
+                            <i class="ti ti-user fs-6"></i>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div class="col-lg-12">
-              <!-- Monthly Earnings -->
-              <div class="card">
-                <div class="card-body">
-                  <div class="row alig n-items-start">
-                    <div class="col-8">
-                      <h5 class="card-title mb-9 fw-semibold"> Number of Employees </h5>
-
-                      <?php 
-                            // Query to get user count
-                            $sql = "SELECT COUNT(*) as users FROM employees";
-                            $query = $conn->prepare($sql);
-                            $query->execute();
-                            $fetch = $query->fetch(PDO::FETCH_ASSOC);                        
-                        ?>
-
-                      <h4 class="fw-semibold mb-3">
-                        <?= $fetch['users']?>
-                      </h4>
-
-                    </div>
-                    <div class="col-4">
-                      <div class="d-flex justify-content-end">
-                        <div
-                          class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
-                          <!-- Change the icon to something more relevant to employees -->
-                          <i class="ti ti-user fs-6"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
