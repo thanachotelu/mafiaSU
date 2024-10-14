@@ -72,15 +72,6 @@ if (!$user) {
                         </li>
 
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./manager-forms.php" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-file-description"></i>
-                                </span>
-                                <span class="hide-menu">Forms</span>
-                            </a>
-                        </li>
-
-                        <li class="sidebar-item">
                             <a class="sidebar-link" href="#" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-layout-dashboard"></i>

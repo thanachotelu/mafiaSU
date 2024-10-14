@@ -145,8 +145,8 @@ Options can be applied to the plugin during initialization:
 
 ```js
 new SimpleBar(document.getElementById('myElement'), {
-  option1: value1,
-  option2: value2
+  1: value1,
+  2: value2
 });
 ```
 

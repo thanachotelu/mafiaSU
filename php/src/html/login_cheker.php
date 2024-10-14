@@ -29,7 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($row) {
         // Store the user's firstname and ID in the session
         $_SESSION['user_firstname'] = $row['firstname'];
-        $_SESSION['currentUserId'] = $row['e_id']; // Set currentUserId from the employee's ID
+        $_SESSION['currentUserId'] = $row['e_id'];
+        $_SESSION['user_position'] = $row['job_id'];
 
         // Redirect based on the employee's job_id
         if ($row["job_id"] == 1) { // Chief
@@ -39,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: Manager/manager-dashboard.php");
             exit();
         } else if ($row["job_id"] == 3) { // Officer
-            header("Location: Officer/officer-forms.php");
+            header("Location: Officer/officer-dashboard.php");
             exit();
         }
     } else {
