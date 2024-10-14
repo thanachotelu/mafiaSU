@@ -1,5 +1,39 @@
 <?php
-    include "../connection.php";
+    include "../connection.php"; // ไฟล์นี้ควรประกอบไปด้วยการเชื่อมต่อฐานข้อมูลด้วย PDO
+
+    // เช็คการเชื่อมต่อ
+    if (!$conn) {
+      die("Connection failed: " . pg_last_error());
+    }
+
+    // จำนวนข้อมูลต่อหน้า
+    $limit = 7;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $limit;
+
+    // ดึงข้อมูลพนักงาน
+    $query = "SELECT e.e_id, e.firstname, e.lastname, d.dept_name
+              FROM employees e
+              JOIN departments d ON e.dept_id = d.dept_id
+              LIMIT :limit OFFSET :offset";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($result === false) {
+        die("Error in SQL query: " . $conn->errorInfo()[2]);
+    }
+
+    // ดึงจำนวนข้อมูลทั้งหมด
+    $count_query = "SELECT COUNT(*) AS total FROM employees";
+    $count_stmt = $conn->query($count_query);
+    $count_row = $count_stmt->fetch(PDO::FETCH_ASSOC);
+    $total_rows = $count_row['total'];
+    $total_pages = ceil($total_rows / $limit);
 ?>
 
 <!doctype html>
@@ -117,7 +151,8 @@
               <li class="nav-item dropdown">
                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
                   aria-expanded="false">
-                  <img src="../../assets/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
+                  <img src="../../assets/images/profile/user-1.jpg" alt="" width="35" height="35"
+                    class="rounded-circle">
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
@@ -267,56 +302,63 @@
 
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                          <span class="fs-3">Job Perform Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                        <span class="fs-3">Job Perform Score:
                           <span class="text-success">
                             <?= $eval1 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
-                          <span class="fs-3">Quality of Work Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                        <span class="fs-3">Quality of Work Score:
                           <span class="text-success">
                             <?= $eval2 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
-                          <span class="fs-3">Teamwork Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                        <span class="fs-3">Teamwork Score:
                           <span class="text-success">
                             <?= $eval3 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                          <span class="fs-3">Adaptability to Change Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                        <span class="fs-3">Adaptability to Change Score:
                           <span class="text-success">
                             <?= $eval4 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
-                          <span class="fs-3">Time Management Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                        <span class="fs-3">Time Management Score:
                           <span class="text-success">
                             <?= $eval5 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
-                          <span class="fs-3">Creativity Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                        <span class="fs-3">Creativity Score:
                           <span class="text-success">
                             <?= $eval6 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
-                          <span class="fs-3">Adherence to Policies and Regulations Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                        <span class="fs-3">Adherence to Policies and Regulations Score:
                           <span class="text-success">
                             <?= $eval7 ?>
                           </span>
@@ -346,56 +388,63 @@
 
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(75, 192, 192, 0.5);"></span>
-                          <span class="fs-3">Skills & Knowledge Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(75, 192, 192, 0.5);"></span>
+                        <span class="fs-3">Skills & Knowledge Score:
                           <span class="text-success">
                             <?= $eval8 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
-                          <span class="fs-3">Behavior & Attitude Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                        <span class="fs-3">Behavior & Attitude Score:
                           <span class="text-success">
                             <?= $eval9 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
-                          <span class="fs-3">Communication Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                        <span class="fs-3">Communication Score:
                           <span class="text-success">
                             <?= $eval10 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                          <span class="fs-3">Ability to Work Under Pressure Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                        <span class="fs-3">Ability to Work Under Pressure Score:
                           <span class="text-success">
                             <?= $eval11 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
-                          <span class="fs-3">Leadership Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                        <span class="fs-3">Leadership Score:
                           <span class="text-success">
                             <?= $eval12 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
-                          <span class="fs-3">Relationship Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                        <span class="fs-3">Relationship Score:
                           <span class="text-success">
                             <?= $eval13 ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
-                          <span class="fs-3">Adaptability to Learning Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                        <span class="fs-3">Adaptability to Learning Score:
                           <span class="text-success">
                             <?= $eval14 ?>
                           </span>
@@ -440,7 +489,63 @@
             </div>
           </div>
         </div>
+
+        <!--  Row 2 -->
+        <div class="row">
+          <div class="col-lg-12 d-flex align-items-stretch">
+            <div class="card w-100">
+              <div class="card-body">
+                <div class="d-sm-flex d-block align-items-center justify-content-between mb-7">
+                  <div class="mb-3 mb-sm-0">
+                    <h4 class="card-title fw-semibold">Top Performers</h4>
+                    <p class="card-subtitle">Best Employees</p>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table align-middle text-nowrap mb-0">
+                    <thead>
+                      <tr class="text-muted fw-semibold">
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Department</th>
+                        <th scope="col">Total Evaluated</th>
+                        <th scope="col">Total Approved</th>
+                      </tr>
+                    </thead>
+                    <tbody class="border-top">
+                      <?php
+                                // แสดงข้อมูลพนักงานที่ดึงมาจากฐานข้อมูล
+                                foreach ($result as $row) {
+                                    // สมมุติข้อมูล Total Evaluated และ Total Approved
+                                    $total_evaluated = rand(1, 10); // สุ่มจำนวนที่ประเมิน
+                                    $total_approved = rand(0, $total_evaluated); // สุ่มจำนวนที่ได้รับการอนุมัติ
+                                    echo "<tr>
+                                            <td>{$row['e_id']}</td>
+                                            <td>{$row['firstname']} {$row['lastname']}</td>
+                                            <td>{$row['dept_name']}</td>
+                                            <td>$total_evaluated</td>
+                                            <td>$total_approved</td>
+                                          </tr>";
+                                }
+                                ?>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="pagination">
+                  <?php
+                        // สร้างปุ่มสำหรับเปลี่ยนหน้า
+                        for ($i = 1; $i <= $total_pages; $i++) {
+                            echo "<a href='?page=$i' class='page-link'>$i</a> ";
+                        }
+                        ?>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
     </div>
   </div>
   <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
