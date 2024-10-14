@@ -38,6 +38,15 @@
             </li>
             
             <li class="sidebar-item">
+              <a class="sidebar-link" href="./chief-dashboard.php" aria-expanded="false">
+                <span>
+                  <i class="ti ti-file-description"></i>
+                </span>
+                <span class="hide-menu">Dashboard</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
               <a class="sidebar-link" href="./chief-forms.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
