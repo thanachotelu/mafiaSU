@@ -60,6 +60,15 @@ try {
                         </li>
 
                         <li class="sidebar-item">
+                            <a class="sidebar-link" href="./chief-dashboard.php" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-file-description"></i>
+                                </span>
+                                <span class="hide-menu">Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
                             <a class="sidebar-link" href="./chief-forms.php" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-file-description"></i>
@@ -317,7 +326,7 @@ try {
             <script src="../../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
             <script src="../../assets/libs/simplebar/dist/simplebar.js"></script>
             <script src="../../assets/js/dashboard.js"></script>
-            
+
 </body>
 
 </html>

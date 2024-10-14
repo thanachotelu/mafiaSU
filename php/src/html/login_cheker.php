@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Redirect based on the employee's job_id
         if ($row["job_id"] == 1) { // Chief
-            header("Location: Chief/chief-forms.php");
+            header("Location: Chief/chief-dashboard.php");
             exit();
         } else if ($row["job_id"] == 2) { // Manager
             header("Location: Manager/manager-dashboard.php");
