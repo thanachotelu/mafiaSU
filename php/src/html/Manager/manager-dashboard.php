@@ -1,39 +1,89 @@
 <?php
-    include "../connection.php"; // ไฟล์นี้ควรประกอบไปด้วยการเชื่อมต่อฐานข้อมูลด้วย PDO
+include "../connection.php"; // ไฟล์นี้ควรประกอบไปด้วยการเชื่อมต่อฐานข้อมูลด้วย PDO
+session_start();
+$currentUserId = $_SESSION['currentUserId'];
 
-    // เช็คการเชื่อมต่อ
-    if (!$conn) {
-      die("Connection failed: " . pg_last_error());
-    }
+// เช็คการเชื่อมต่อ
+if (!$conn) {
+    die("Connection failed: " . pg_last_error());
+}
 
-    // จำนวนข้อมูลต่อหน้า
-    $limit = 7;
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $offset = ($page - 1) * $limit;
+// จำนวนข้อมูลต่อหน้า
+$limit = 7;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
 
-    // ดึงข้อมูลพนักงาน
-    $query = "SELECT e.e_id, e.firstname, e.lastname, d.dept_name
-              FROM employees e
-              JOIN departments d ON e.dept_id = d.dept_id
-              LIMIT :limit OFFSET :offset";
+// ดึงข้อมูลพนักงาน
+$employeeQuery = "SELECT e.e_id, e.firstname, e.lastname, d.dept_name
+                  FROM employees e
+                  JOIN departments d ON e.dept_id = d.dept_id
+                  LIMIT :limit OFFSET :offset";
 
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-    $stmt->execute();
+$sql = "SELECT 
+        -- ค่าเฉลี่ยจาก form_topic1_info
+        ROUND(AVG(t1.job_perform), 2) AS avg_job_performance, 
+        ROUND(AVG(t1.quality_of_work), 2) AS avg_quality_of_work, 
+        ROUND(AVG(t1.teamwork), 2) AS avg_teamwork, 
+        ROUND(AVG(t1.adaptability_to_change), 2) AS avg_adaptability, 
+        ROUND(AVG(t1.time_management), 2) AS avg_time_management, 
+        ROUND(AVG(t1.creativity), 2) AS avg_creativity, 
+        ROUND(AVG(t1.adherence_policies_regulations), 2) AS avg_policy_adherence,
+        -- ค่าเฉลี่ยจาก form_topic2_info
+        ROUND(AVG(t2.skills_knowledge), 2) AS avg_skills_knowledge,
+        ROUND(AVG(t2.behavior_attiude), 2) AS avg_behavior_attitude,
+        ROUND(AVG(t2.communication), 2) AS avg_communication,
+        ROUND(AVG(t2.ability_work_un_press), 2) AS avg_ability_work_un_press,
+        ROUND(AVG(t2.leadership), 2) AS avg_leadership,
+        ROUND(AVG(t2.relationship), 2) AS avg_relationship,
+        ROUND(AVG(t2.adaptability_learning), 2) AS avg_adaptability_learning
+        FROM form_appraisal a 
+        LEFT JOIN form_topic1_info t1 ON (t1.form_id = a.form_id)
+        LEFT JOIN form_topic2_info t2 ON (t2.form_id = a.form_id)
+        JOIN employees e ON (a.evaluatee_id = e.e_id)
+        WHERE e.e_id = :currentUserId;";
 
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// คิวรีเพื่อดึงข้อมูลค่าเฉลี่ย
+$query1 = $conn->prepare($sql);
+$query1->bindParam(':currentUserId', $currentUserId);
+$query1->execute();
+$averageResults = $query1->fetch(PDO::FETCH_ASSOC);
 
-    if ($result === false) {
-        die("Error in SQL query: " . $conn->errorInfo()[2]);
-    }
+// คิวรีเพื่อดึงข้อมูลพนักงาน
+$stmt = $conn->prepare($employeeQuery);
+$stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
 
-    // ดึงจำนวนข้อมูลทั้งหมด
-    $count_query = "SELECT COUNT(*) AS total FROM employees";
-    $count_stmt = $conn->query($count_query);
-    $count_row = $count_stmt->fetch(PDO::FETCH_ASSOC);
-    $total_rows = $count_row['total'];
-    $total_pages = ceil($total_rows / $limit);
+$employeeResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if ($employeeResults === false) {
+    die("Error in SQL query: " . $conn->errorInfo()[2]);
+}
+
+// ดึงจำนวนข้อมูลทั้งหมด
+$count_query = "SELECT COUNT(*) AS total FROM employees";
+$count_stmt = $conn->query($count_query);
+$count_row = $count_stmt->fetch(PDO::FETCH_ASSOC);
+$total_rows = $count_row['total'];
+$total_pages = ceil($total_rows / $limit);
+
+// ค่าเฉลี่ยสำหรับกราฟแรก
+$avgJobPerformance = $averageResults['avg_job_performance'] ?? 0;
+$avgQualityOfWork = $averageResults['avg_quality_of_work'] ?? 0;
+$avgTeamwork = $averageResults['avg_teamwork'] ?? 0;
+$avgAdaptability = $averageResults['avg_adaptability'] ?? 0;
+$avgTimeManagement = $averageResults['avg_time_management'] ?? 0;
+$avgCreativity = $averageResults['avg_creativity'] ?? 0;
+$avgPolicyAdherence = $averageResults['avg_policy_adherence'] ?? 0;
+
+// ค่าเฉลี่ยสำหรับกราฟที่สอง
+$avgSkillsKnowledge = $averageResults['avg_skills_knowledge'] ?? 0;
+$avgBehaviorAttitude = $averageResults['avg_behavior_attitude'] ?? 0;
+$avgCommunication = $averageResults['avg_communication'] ?? 0;
+$avgAbilityWorkUnderPress = $averageResults['avg_ability_work_un_press'] ?? 0;
+$avgLeadership = $averageResults['avg_leadership'] ?? 0;
+$avgRelationship = $averageResults['avg_relationship'] ?? 0;
+$avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
 ?>
 
 <!doctype html>
@@ -82,20 +132,11 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./manager-forms.php" aria-expanded="false">
+              <a class="sidebar-link" href="./manager-forms_check.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
                 </span>
                 <span class="hide-menu">Forms</span>
-              </a>
-            </li>
-
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="#" aria-expanded="false">
-                <span>
-                  <i class="ti ti-layout-dashboard"></i>
-                </span>
-                <span class="hide-menu">Forms Editor</span>
               </a>
             </li>
 
@@ -208,7 +249,7 @@
                       labels: ['Job Perform', 'Quality of Work', 'Teamwork', 'Adaptability to Change', 'Time Management', 'Creativity', 'Policy Adherence and Regulations'],
                       datasets: [{
                         label: 'Evaluation Scores - Chart 1',
-                        data: [4, 3, 5, 4, 4, 5, 5], // ข้อมูลเป็นจำนวนเต็ม
+                        data: [<?php echo $avgJobPerformance; ?>, <?php echo $avgQualityOfWork; ?>, <?php echo $avgTeamwork; ?>, <?php echo $avgAdaptability; ?>, <?php echo $avgTimeManagement; ?>, <?php echo $avgCreativity; ?>, <?php echo $avgPolicyAdherence; ?>],
                         backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 235, 162, 0.5)'],
                         borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 235, 162, 1)'],
                         borderWidth: 1
@@ -245,7 +286,7 @@
                       labels: ['Skills & Knowledge', 'Behavior & Attitude', 'Communication', 'Ability to Work Under Pressure', 'Leadership', 'Relationship', 'Adaptability to Learning'],
                       datasets: [{
                         label: 'Evaluation Scores - Chart 2',
-                        data: [4, 4, 5, 5, 4, 4, 5], // ข้อมูลเป็นจำนวนเต็ม
+                        data: [<?php echo $avgSkillsKnowledge; ?>, <?php echo $avgBehaviorAttitude; ?>, <?php echo $avgCommunication; ?>, <?php echo $avgAbilityWorkUnderPress; ?>, <?php echo $avgLeadership; ?>, <?php echo $avgRelationship; ?>, <?php echo $avgAdaptabilityLearning; ?>],
                         backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(54, 235, 162, 0.5)'],
                         borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(54, 235, 162, 1)'],
                         borderWidth: 1
@@ -288,79 +329,60 @@
                 <div class="card overflow-hidden">
                   <div class="card-body p-4">
                     <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 1</h5>
-
-                    <?php 
-                        // สมมุติข้อมูลขึ้นมา data: [4, 3, 5, 4, 4, 5, 5]
-                        $eval1 = 4; // คะแนนประเมิน 1
-                        $eval2 = 3; // คะแนนประเมิน 2
-                        $eval3 = 5; // คะแนนประเมิน 3
-                        $eval4 = 4; // คะแนนประเมิน 4
-                        $eval5 = 4; // คะแนนประเมิน 5
-                        $eval6 = 5; // คะแนนประเมิน 6
-                        $eval7 = 5; // คะแนนประเมิน 7
-                    ?>
-
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                        <span class="fs-3">Job Perform Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                          <span class="fs-3">Job Perform Score: 
                           <span class="text-success">
-                            <?= $eval1 ?>
+                            <?= $avgJobPerformance ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(153, 102, 255, 0.5);"></span>
-                        <span class="fs-3">Quality of Work Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                          <span class="fs-3">Quality of Work Score: 
                           <span class="text-success">
-                            <?= $eval2 ?>
+                            <?= $avgQualityOfWork ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(255, 159, 64, 0.5);"></span>
-                        <span class="fs-3">Teamwork Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                          <span class="fs-3">Teamwork Score: 
                           <span class="text-success">
-                            <?= $eval3 ?>
+                            <?= $avgTeamwork ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                        <span class="fs-3">Adaptability to Change Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                          <span class="fs-3">Adaptability to Change Score: 
                           <span class="text-success">
-                            <?= $eval4 ?>
+                            <?= $avgAdaptability ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(255, 99, 132, 0.5);"></span>
-                        <span class="fs-3">Time Management Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                          <span class="fs-3">Time Management Score: 
                           <span class="text-success">
-                            <?= $eval5 ?>
+                            <?= $avgTimeManagement ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(255, 206, 86, 0.5);"></span>
-                        <span class="fs-3">Creativity Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                          <span class="fs-3">Creativity Score: 
                           <span class="text-success">
-                            <?= $eval6 ?>
+                            <?= $avgCreativity ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(54, 235, 162, 0.5);"></span>
-                        <span class="fs-3">Adherence to Policies and Regulations Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                          <span class="fs-3">Adherence to Policies and Regulations Score: 
                           <span class="text-success">
-                            <?= $eval7 ?>
+                            <?= $avgPolicyAdherence ?>
                           </span>
                         </span>
                       </div>
@@ -373,80 +395,61 @@
               <div class="col-lg-12">
                 <div class="card overflow-hidden">
                   <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 1</h5>
-
-                    <?php 
-                        // สมมุติข้อมูลขึ้นมา data: [4, 4, 5, 5, 4, 4, 5], // ข้อมูลเป็นจำนวนเต็ม
-                        $eval8 = 4; // คะแนนประเมิน 1
-                        $eval9 = 4; // คะแนนประเมิน 2
-                        $eval10 = 5; // คะแนนประเมิน 3
-                        $eval11 = 5; // คะแนนประเมิน 4
-                        $eval12 = 4; // คะแนนประเมิน 5
-                        $eval13 = 4; // คะแนนประเมิน 6
-                        $eval14 = 5; // คะแนนประเมิน 7
-                    ?>
-
+                    <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 2</h5>
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(75, 192, 192, 0.5);"></span>
-                        <span class="fs-3">Skills & Knowledge Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(75, 192, 192, 0.5);"></span>
+                          <span class="fs-3">Skills & Knowledge Score: 
                           <span class="text-success">
-                            <?= $eval8 ?>
+                            <?= $avgSkillsKnowledge ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(153, 102, 255, 0.5);"></span>
-                        <span class="fs-3">Behavior & Attitude Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                          <span class="fs-3">Behavior & Attitude Score: 
                           <span class="text-success">
-                            <?= $eval9 ?>
+                            <?= $avgBehaviorAttitude ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(255, 159, 64, 0.5);"></span>
-                        <span class="fs-3">Communication Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                          <span class="fs-3">Communication Score: 
                           <span class="text-success">
-                            <?= $eval10 ?>
+                            <?= $avgCommunication ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                        <span class="fs-3">Ability to Work Under Pressure Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                          <span class="fs-3">Ability to Work Under Pressure Score: 
                           <span class="text-success">
-                            <?= $eval11 ?>
+                            <?= $avgAbilityWorkUnderPress ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(255, 99, 132, 0.5);"></span>
-                        <span class="fs-3">Leadership Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                          <span class="fs-3">Leadership Score: 
                           <span class="text-success">
-                            <?= $eval12 ?>
+                            <?= $avgLeadership ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(255, 206, 86, 0.5);"></span>
-                        <span class="fs-3">Relationship Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                          <span class="fs-3">Relationship Score: 
                           <span class="text-success">
-                            <?= $eval13 ?>
+                            <?= $avgRelationship ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block"
-                          style="background-color: rgba(54, 235, 162, 0.5);"></span>
-                        <span class="fs-3">Adaptability to Learning Score:
+                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                          <span class="fs-3">Adaptability to Learning Score: 
                           <span class="text-success">
-                            <?= $eval14 ?>
+                            <?= $avgAdaptabilityLearning ?>
                           </span>
                         </span>
                       </div>
@@ -515,7 +518,7 @@
                     <tbody class="border-top">
                       <?php
                                 // แสดงข้อมูลพนักงานที่ดึงมาจากฐานข้อมูล
-                                foreach ($result as $row) {
+                                foreach ($employeeResults as $row) {
                                     // สมมุติข้อมูล Total Evaluated และ Total Approved
                                     $total_evaluated = rand(1, 10); // สุ่มจำนวนที่ประเมิน
                                     $total_approved = rand(0, $total_evaluated); // สุ่มจำนวนที่ได้รับการอนุมัติ

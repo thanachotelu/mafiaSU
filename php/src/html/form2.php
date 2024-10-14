@@ -36,7 +36,7 @@
 
         try {
             // สร้างคำสั่ง SQL เพื่อบันทึกข้อมูล โดยใช้ PDO prepared statement
-            $sql = "INSERT INTO form_topic1_info (form_id, topic_id, job_perform, quality_of_work, teamwork, adaptability_to_change, time_management, creativity, adherence_policies_regulations)
+            $sql = "INSERT INTO form_topic2_info (form_id, topic_id, skills_knowledge, behavior_attiude, communication, ability_work_un_press, leadership, relationship, adaptability_learning)
                     VALUES (:form_id, :topic_id, :question1, :question2, :question3, :question4, :question5, :question6, :question7)";
 
             // เตรียมคำสั่ง SQL
@@ -456,7 +456,7 @@
                     exit();
             }
             ?>
-            
+
               <button type="button" class="btn btn-danger" onclick="window.location.href='<?php echo $redirect_url; ?>'">ยกเลิก</button>
             </div>
           </form>
