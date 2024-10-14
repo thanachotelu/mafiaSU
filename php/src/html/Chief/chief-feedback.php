@@ -252,7 +252,6 @@ try {
             <style>
                 body {
                     font-family: Arial, sans-serif;
-                    background-color: #f4f4f9;
                     margin: 0;
                     padding: 0;
                 }
@@ -318,6 +317,27 @@ try {
             <script src="../../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
             <script src="../../assets/libs/simplebar/dist/simplebar.js"></script>
             <script src="../../assets/js/dashboard.js"></script>
+            <script>
+    const departmentSelect = document.getElementById('department');
+    const employeeSelect = document.getElementById('employee');
+
+    // ฟังก์ชั่นกรองพนักงานตามแผนกที่เลือก
+    departmentSelect.addEventListener('change', function() {
+        const selectedDepartment = departmentSelect.value;
+
+        // แสดงหรือซ่อนพนักงานตามแผนกที่เลือก
+        for (let i = 0; i < employeeSelect.options.length; i++) {
+            const option = employeeSelect.options[i];
+
+            // ถ้าไม่มีแผนกที่เลือก หรือพนักงานอยู่ในแผนกที่ตรงกับแผนกที่เลือก
+            if (option.getAttribute('data-department') === selectedDepartment || option.value === "") {
+                option.style.display = 'block';  // แสดงพนักงาน
+            } else {
+                option.style.display = 'none';   // ซ่อนพนักงานที่ไม่ได้อยู่ในแผนก
+            }
+        }
+    });
+</script>
 </body>
 
 </html>
