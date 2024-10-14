@@ -1,5 +1,54 @@
 <?php
-    include "../connection.php";
+include "../connection.php";
+session_start();
+
+$currentUserId = $_SESSION['currentUserId'];
+
+$sql = "SELECT 
+        -- ค่าเฉลี่ยจาก form_topic1_info
+        ROUND(AVG(t1.job_perform), 2) AS avg_job_performance, 
+        ROUND(AVG(t1.quality_of_work), 2) AS avg_quality_of_work, 
+        ROUND(AVG(t1.teamwork), 2) AS avg_teamwork, 
+        ROUND(AVG(t1.adaptability_to_change), 2) AS avg_adaptability, 
+        ROUND(AVG(t1.time_management), 2) AS avg_time_management, 
+        ROUND(AVG(t1.creativity), 2) AS avg_creativity, 
+        ROUND(AVG(t1.adherence_policies_regulations), 2) AS avg_policy_adherence,
+        -- ค่าเฉลี่ยจาก form_topic2_info
+        ROUND(AVG(t2.skills_knowledge), 2) AS avg_skills_knowledge,
+        ROUND(AVG(t2.behavior_attiude), 2) AS avg_behavior_attitude,
+        ROUND(AVG(t2.communication), 2) AS avg_communication,
+        ROUND(AVG(t2.ability_work_un_press), 2) AS avg_ability_work_un_press,
+        ROUND(AVG(t2.leadership), 2) AS avg_leadership,
+        ROUND(AVG(t2.relationship), 2) AS avg_relationship,
+        ROUND(AVG(t2.adaptability_learning), 2) AS avg_adaptability_learning
+        FROM form_appraisal a 
+        LEFT JOIN form_topic1_info t1 ON (t1.form_id = a.form_id)
+        LEFT JOIN form_topic2_info t2 ON (t2.form_id = a.form_id)
+        JOIN employees e ON (a.evaluatee_id = e.e_id)
+        WHERE e.e_id = :currentUserId;";
+
+$query = $conn->prepare($sql);
+$query->bindParam(':currentUserId', $currentUserId);
+$query->execute();
+$result = $query->fetch(PDO::FETCH_ASSOC);
+
+// ค่าเฉลี่ยสำหรับกราฟแรก
+$avgJobPerformance = $result['avg_job_performance'] ?? 0;
+$avgQualityOfWork = $result['avg_quality_of_work'] ?? 0;
+$avgTeamwork = $result['avg_teamwork'] ?? 0;
+$avgAdaptability = $result['avg_adaptability'] ?? 0;
+$avgTimeManagement = $result['avg_time_management'] ?? 0;
+$avgCreativity = $result['avg_creativity'] ?? 0;
+$avgPolicyAdherence = $result['avg_policy_adherence'] ?? 0;
+
+// ค่าเฉลี่ยสำหรับกราฟที่สอง
+$avgSkillsKnowledge = $result['avg_skills_knowledge'] ?? 0;
+$avgBehaviorAttitude = $result['avg_behavior_attitude'] ?? 0;
+$avgCommunication = $result['avg_communication'] ?? 0;
+$avgAbilityWorkUnderPress = $result['avg_ability_work_un_press'] ?? 0;
+$avgLeadership = $result['avg_leadership'] ?? 0;
+$avgRelationship = $result['avg_relationship'] ?? 0;
+$avgAdaptabilityLearning = $result['avg_adaptability_learning'] ?? 0;
 ?>
 
 <!doctype html>
@@ -156,7 +205,7 @@
                       labels: ['Job Perform', 'Quality of Work', 'Teamwork', 'Adaptability to Change', 'Time Management', 'Creativity', 'Policy Adherence and Regulations'],
                       datasets: [{
                         label: 'Evaluation Scores - Chart 1',
-                        data: [4, 3, 5, 4, 4, 5, 5], // ข้อมูลเป็นจำนวนเต็ม
+                        data: [<?php echo $avgJobPerformance; ?>, <?php echo $avgQualityOfWork; ?>, <?php echo $avgTeamwork; ?>, <?php echo $avgAdaptability; ?>, <?php echo $avgTimeManagement; ?>, <?php echo $avgCreativity; ?>, <?php echo $avgPolicyAdherence; ?>],
                         backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 235, 162, 0.5)'],
                         borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 235, 162, 1)'],
                         borderWidth: 1
@@ -193,7 +242,7 @@
                       labels: ['Skills & Knowledge', 'Behavior & Attitude', 'Communication', 'Ability to Work Under Pressure', 'Leadership', 'Relationship', 'Adaptability to Learning'],
                       datasets: [{
                         label: 'Evaluation Scores - Chart 2',
-                        data: [4, 4, 5, 5, 4, 4, 5], // ข้อมูลเป็นจำนวนเต็ม
+                        data: [<?php echo $avgSkillsKnowledge; ?>, <?php echo $avgBehaviorAttitude; ?>, <?php echo $avgCommunication; ?>, <?php echo $avgAbilityWorkUnderPress; ?>, <?php echo $avgLeadership; ?>, <?php echo $avgRelationship; ?>, <?php echo $avgAdaptabilityLearning; ?>],
                         backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(54, 235, 162, 0.5)'],
                         borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(54, 235, 162, 1)'],
                         borderWidth: 1
@@ -236,24 +285,12 @@
                 <div class="card overflow-hidden">
                   <div class="card-body p-4">
                     <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 1</h5>
-
-                    <?php 
-                        // สมมุติข้อมูลขึ้นมา data: [4, 3, 5, 4, 4, 5, 5]
-                        $eval1 = 4; // คะแนนประเมิน 1
-                        $eval2 = 3; // คะแนนประเมิน 2
-                        $eval3 = 5; // คะแนนประเมิน 3
-                        $eval4 = 4; // คะแนนประเมิน 4
-                        $eval5 = 4; // คะแนนประเมิน 5
-                        $eval6 = 5; // คะแนนประเมิน 6
-                        $eval7 = 5; // คะแนนประเมิน 7
-                    ?>
-
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
                           <span class="fs-3">Job Perform Score: 
                           <span class="text-success">
-                            <?= $eval1 ?>
+                            <?= $avgJobPerformance ?>
                           </span>
                         </span>
                       </div>
@@ -261,7 +298,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
                           <span class="fs-3">Quality of Work Score: 
                           <span class="text-success">
-                            <?= $eval2 ?>
+                            <?= $avgQualityOfWork ?>
                           </span>
                         </span>
                       </div>
@@ -269,7 +306,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
                           <span class="fs-3">Teamwork Score: 
                           <span class="text-success">
-                            <?= $eval3 ?>
+                            <?= $avgTeamwork ?>
                           </span>
                         </span>
                       </div>
@@ -277,7 +314,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
                           <span class="fs-3">Adaptability to Change Score: 
                           <span class="text-success">
-                            <?= $eval4 ?>
+                            <?= $avgAdaptability ?>
                           </span>
                         </span>
                       </div>
@@ -285,7 +322,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
                           <span class="fs-3">Time Management Score: 
                           <span class="text-success">
-                            <?= $eval5 ?>
+                            <?= $avgTimeManagement ?>
                           </span>
                         </span>
                       </div>
@@ -293,7 +330,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
                           <span class="fs-3">Creativity Score: 
                           <span class="text-success">
-                            <?= $eval6 ?>
+                            <?= $avgCreativity ?>
                           </span>
                         </span>
                       </div>
@@ -301,7 +338,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
                           <span class="fs-3">Adherence to Policies and Regulations Score: 
                           <span class="text-success">
-                            <?= $eval7 ?>
+                            <?= $avgPolicyAdherence ?>
                           </span>
                         </span>
                       </div>
@@ -314,25 +351,13 @@
               <div class="col-lg-12">
                 <div class="card overflow-hidden">
                   <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 1</h5>
-
-                    <?php 
-                        // สมมุติข้อมูลขึ้นมา data: [4, 4, 5, 5, 4, 4, 5], // ข้อมูลเป็นจำนวนเต็ม
-                        $eval8 = 4; // คะแนนประเมิน 1
-                        $eval9 = 4; // คะแนนประเมิน 2
-                        $eval10 = 5; // คะแนนประเมิน 3
-                        $eval11 = 5; // คะแนนประเมิน 4
-                        $eval12 = 4; // คะแนนประเมิน 5
-                        $eval13 = 4; // คะแนนประเมิน 6
-                        $eval14 = 5; // คะแนนประเมิน 7
-                    ?>
-
+                    <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 2</h5>
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(75, 192, 192, 0.5);"></span>
                           <span class="fs-3">Skills & Knowledge Score: 
                           <span class="text-success">
-                            <?= $eval8 ?>
+                            <?= $avgSkillsKnowledge ?>
                           </span>
                         </span>
                       </div>
@@ -340,7 +365,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
                           <span class="fs-3">Behavior & Attitude Score: 
                           <span class="text-success">
-                            <?= $eval9 ?>
+                            <?= $avgBehaviorAttitude ?>
                           </span>
                         </span>
                       </div>
@@ -348,7 +373,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
                           <span class="fs-3">Communication Score: 
                           <span class="text-success">
-                            <?= $eval10 ?>
+                            <?= $avgCommunication ?>
                           </span>
                         </span>
                       </div>
@@ -356,7 +381,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
                           <span class="fs-3">Ability to Work Under Pressure Score: 
                           <span class="text-success">
-                            <?= $eval11 ?>
+                            <?= $avgAbilityWorkUnderPress ?>
                           </span>
                         </span>
                       </div>
@@ -364,7 +389,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
                           <span class="fs-3">Leadership Score: 
                           <span class="text-success">
-                            <?= $eval12 ?>
+                            <?= $avgLeadership ?>
                           </span>
                         </span>
                       </div>
@@ -372,7 +397,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
                           <span class="fs-3">Relationship Score: 
                           <span class="text-success">
-                            <?= $eval13 ?>
+                            <?= $avgRelationship ?>
                           </span>
                         </span>
                       </div>
@@ -380,7 +405,7 @@
                         <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
                           <span class="fs-3">Adaptability to Learning Score: 
                           <span class="text-success">
-                            <?= $eval14 ?>
+                            <?= $avgAdaptabilityLearning ?>
                           </span>
                         </span>
                       </div>

@@ -72,11 +72,11 @@ if (!$user) {
                         </li>
 
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="#" aria-expanded="false">
+                            <a class="sidebar-link" href="./manager-forms_check.php" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-layout-dashboard"></i>
                                 </span>
-                                <span class="hide-menu">Forms Editor</span>
+                                <span class="hide-menu">Forms</span>
                             </a>
                         </li>
 
