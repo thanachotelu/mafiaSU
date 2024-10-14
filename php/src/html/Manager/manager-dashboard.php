@@ -497,8 +497,8 @@
               <div class="card-body">
                 <div class="d-sm-flex d-block align-items-center justify-content-between mb-7">
                   <div class="mb-3 mb-sm-0">
-                    <h4 class="card-title fw-semibold">Top Performers</h4>
-                    <p class="card-subtitle">Best Employees</p>
+                    <h4 class="card-title fw-semibold">Employee evaluations</h4>
+                    <p class="card-subtitle">Employee appraisals</p>
                   </div>
                 </div>
                 <div class="table-responsive">
