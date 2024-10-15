@@ -1,5 +1,5 @@
 <?php
-session_start(); // Start the session at the beginning of the script
+session_start();
 
 $servername = "db";
 $username = "appraisal_user";
@@ -16,7 +16,7 @@ try {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $firstname = $_POST["username"];  // Get the username from POST data
+    $firstname = $_POST["username"];
 
     // Query to find the employee by their firstname
     $sql = "SELECT * FROM employees WHERE firstname = :firstname";
@@ -44,7 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
     } else {
-        // If the user is not found, alert the user
         echo '<script>
                   alert("Incorrect input")
               </script>';

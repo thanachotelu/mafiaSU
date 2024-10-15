@@ -138,11 +138,63 @@ $avgAdaptabilityLearning = $result['avg_adaptability_learning'] ?? 0;
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link nav-icon-hover" href="javascript:void(0)">
+              <a class="nav-link nav-icon-hover" href="javascript:void(0)" onclick="toggleNotificationBox()">
                 <i class="ti ti-bell-ringing"></i>
                 <div class="notification bg-primary rounded-circle"></div>
               </a>
             </li>
+            <div id="notificationBox" class="box-root" style="display: none;">
+              <div id="notificationContent">
+              </div>
+            </div>
+            <script>
+              function toggleNotificationBox() {
+                var box = document.getElementById('notificationBox');
+                box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+
+                // Fetch notifications from server when the box is displayed
+                if (box.style.display === 'block') {
+                  fetchNotifications();
+                }
+              }
+
+              function fetchNotifications() {
+                fetch('../get_notifications.php')
+                  .then(response => response.json())
+                  .then(data => {
+                    var content = document.getElementById('notificationContent');
+                    content.innerHTML = ''; // ล้างข้อมูลเดิมก่อน
+
+                    if (data.notifications && data.notifications.length > 0) {
+                      data.notifications.forEach(function(notification) {
+                        var notificationElement = document.createElement('div');
+                        notificationElement.classList.add('notification-item'); // เพิ่มคลาสสำหรับ CSS
+
+                        // สร้างข้อความแสดงข้อมูล
+                        var subject = document.createElement('h4');
+                        subject.textContent = `Subject: ${notification.subjects}`; // แสดง subject
+                        notificationElement.appendChild(subject);
+
+                        var message = document.createElement('p');
+                        message.textContent = `Message: ${notification.detail}`; // แสดง detail
+                        notificationElement.appendChild(message);
+
+                        var date = document.createElement('small');
+                        date.textContent = `Date: ${notification.feedback_date}`; // แสดง feedback_date
+                        notificationElement.appendChild(date);
+
+                        content.appendChild(notificationElement);
+                      });
+                    } else {
+                      content.innerHTML = '<p>No new notifications</p>';
+                    }
+                  })
+                  .catch(error => {
+                    console.error('Error fetching notifications:', error);
+                    document.getElementById('notificationContent').innerHTML = '<p>Error loading notifications</p>';
+                  });
+              }
+            </script>
           </ul>
           <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
             <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
@@ -451,6 +503,37 @@ $avgAdaptabilityLearning = $result['avg_adaptability_learning'] ?? 0;
       </div>
     </div>
   </div>
+  <style>
+    .box-root {
+  position: absolute;
+  top: 50px;
+  left: 0px;
+  width: 300px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#notificationContent p {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+#notificationContent p:last-child {
+  border-bottom: none;
+}
+
+.notification-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+  </style>
   <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../assets/js/sidebarmenu.js"></script>

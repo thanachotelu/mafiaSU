@@ -227,7 +227,7 @@ try {
                                     ]);
 
                                     // หากสำเร็จจะแสดงข้อความแจ้งเตือน
-                                    echo "<script>alert('Feedback submitted successfully!'); window.location.href='feedback.php';</script>";
+                                    echo "<script>alert('Feedback submitted successfully!'); window.location.href='manager-feedback.php';</script>";
                                 }
                                 ?>
 
