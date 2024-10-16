@@ -1,5 +1,8 @@
 <?php
   include "../connection.php"; // ไฟล์นี้ควรประกอบไปด้วยการเชื่อมต่อฐานข้อมูลด้วย PDO
+  session_start();
+  $currentUserId = $_SESSION['currentUserId'];
+
 
   // เช็คการเชื่อมต่อ
   if (!$conn) {
@@ -150,7 +153,7 @@
                     content.innerHTML = ''; // ล้างข้อมูลเดิมก่อน
 
                     if (data.notifications && data.notifications.length > 0) {
-                      data.notifications.forEach(function(notification) {
+                      data.notifications.forEach(function (notification) {
                         var notificationElement = document.createElement('div');
                         notificationElement.classList.add('notification-item'); // เพิ่มคลาสสำหรับ CSS
 
@@ -231,9 +234,27 @@
                     <?php
                         // แสดงข้อมูลพนักงานที่ดึงมาจากฐานข้อมูล
                         foreach ($result as $row) {
-                            // สมมุติข้อมูล Total Evaluated และ Total Approved
-                            $total_evaluated = rand(1, 10); // สุ่มจำนวนที่ประเมิน
-                            $total_approved = rand(0, $total_evaluated); // สุ่มจำนวนที่ได้รับการอนุมัติ
+                            // ดึงค่าจริงจากฐานข้อมูลสำหรับ Total Evaluated
+                            $total_evaluated_query = "SELECT COUNT(*) AS total_evaluated
+                                                      FROM form_appraisal
+                                                      WHERE evaluator_id = :e_id";
+                            $evaluated_stmt = $conn->prepare($total_evaluated_query);
+                            $evaluated_stmt->bindParam(':e_id', $row['e_id'], PDO::PARAM_STR);
+                            $evaluated_stmt->execute();
+                            $evaluated_result = $evaluated_stmt->fetch(PDO::FETCH_ASSOC);
+                            $total_evaluated = $evaluated_result['total_evaluated'];
+
+                            // ดึงค่าจริงจากฐานข้อมูลสำหรับ Total Approved
+                            $total_approved_query = "SELECT COUNT(*) AS total_approved
+                                                     FROM form_appraisal
+                                                     WHERE evaluatee_id = :e_id";
+                            $approved_stmt = $conn->prepare($total_approved_query);
+                            $approved_stmt->bindParam(':e_id', $row['e_id'], PDO::PARAM_STR);
+                            $approved_stmt->execute();
+                            $approved_result = $approved_stmt->fetch(PDO::FETCH_ASSOC);
+                            $total_approved = $approved_result['total_approved'];
+
+                            // แสดงข้อมูลพนักงานในตาราง
                             echo "<tr>
                                     <td>{$row['e_id']}</td>
                                     <td>{$row['firstname']} {$row['lastname']}</td>
@@ -242,129 +263,134 @@
                                     <td>$total_approved</td>
                                   </tr>";
                         }
-                        ?>
+                    ?>
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        </div>
+        <div>
 
-              <div class="pagination">
-                <?php
+          <div class="pagination">
+            <?php
                         // สร้างปุ่มสำหรับเปลี่ยนหน้า
                         for ($i = 1; $i <= $total_pages; $i++) {
                             echo "<a href='?page=$i' class='page-link'>$i</a> ";
                         }
                         ?>
-              </div>
-            </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <?php
+  <?php
     // ปิดการเชื่อมต่อฐานข้อมูล
     $conn = null;
     ?>
 
-    </div>
+  </div>
 
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f9;
-        margin: 0;
-        padding: 0;
-      }
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
 
-      .container {
-        max-width: 800px;
-        margin: 50px auto;
-        background-color: #fff;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-      }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
 
-      h2 {
-        text-align: center;
-        color: #333;
-      }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
 
-      .form-group {
-        margin-bottom: 15px;
-      }
+    .form-group {
+      margin-bottom: 15px;
+    }
 
-      label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-      }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
 
-      input[type="text"],
-      input[type="date"],
-      textarea,
-      select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 16px;
-      }
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
 
-      input[type="submit"] {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-      }
+    input[type="submit"] {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-      input[type="submit"]:hover {
-        background-color: #218838;
-      }
+    input[type="submit"]:hover {
+      background-color: #218838;
+    }
 
-      .error {
-        color: red;
-        font-size: 14px;
-      }
-      .box-root {
-        position: absolute;
-        top: 50px;
-        left: 0px;
-        width: 300px;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      }
+    .error {
+      color: red;
+      font-size: 14px;
+    }
 
-      #notificationContent p {
-        margin: 0;
-        padding: 10px 0;
-        border-bottom: 1px solid #ddd;
-      }
+    .box-root {
+      position: absolute;
+      top: 50px;
+      left: 0px;
+      width: 300px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-      #notificationContent p:last-child {
-        border-bottom: none;
-      }
+    #notificationContent p {
+      margin: 0;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
 
-      .notification-item {
-        margin-bottom: 10px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: #f9f9f9;
-      }
-    </style>
-    <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
-    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/sidebarmenu.js"></script>
-    <script src="../../assets/js/app.min.js"></script>
-    <script src="../../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
-    <script src="../../assets/libs/simplebar/dist/simplebar.js"></script>
-    <script src="../../assets/js/dashboard.js"></script>
+    #notificationContent p:last-child {
+      border-bottom: none;
+    }
+
+    .notification-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+  </style>
+  <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/js/sidebarmenu.js"></script>
+  <script src="../../assets/js/app.min.js"></script>
+  <script src="../../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+  <script src="../../assets/libs/simplebar/dist/simplebar.js"></script>
+  <script src="../../assets/js/dashboard.js"></script>
 </body>
 
 </html>
