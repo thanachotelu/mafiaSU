@@ -13,10 +13,20 @@ $limit = 7;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
+// ดึง dept_id ของผู้จัดการที่ล็อกอินเข้ามา
+$managerDeptQuery = "SELECT dept_id FROM employees WHERE e_id = :currentUserId";
+$deptStmt = $conn->prepare($managerDeptQuery);
+$deptStmt->bindParam(':currentUserId', $currentUserId, PDO::PARAM_INT);
+$deptStmt->execute();
+$deptResult = $deptStmt->fetch(PDO::FETCH_ASSOC);
+$currentDeptId = $deptResult['dept_id'];
+
 // ดึงข้อมูลพนักงาน
+// ดึงข้อมูลพนักงานที่อยู่ในแผนกเดียวกันกับผู้จัดการที่ล็อกอิน
 $employeeQuery = "SELECT e.e_id, e.firstname, e.lastname, d.dept_name
                   FROM employees e
                   JOIN departments d ON e.dept_id = d.dept_id
+                  WHERE e.dept_id = :currentDeptId
                   LIMIT :limit OFFSET :offset";
 
 $sql = "SELECT 
@@ -50,6 +60,7 @@ $averageResults = $query1->fetch(PDO::FETCH_ASSOC);
 
 // คิวรีเพื่อดึงข้อมูลพนักงาน
 $stmt = $conn->prepare($employeeQuery);
+$stmt->bindParam(':currentDeptId', $currentDeptId, PDO::PARAM_INT); // ผูกค่า dept_id ของผู้จัดการ
 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
@@ -61,8 +72,10 @@ if ($employeeResults === false) {
 }
 
 // ดึงจำนวนข้อมูลทั้งหมด
-$count_query = "SELECT COUNT(*) AS total FROM employees";
-$count_stmt = $conn->query($count_query);
+$count_query = "SELECT COUNT(*) AS total FROM employees WHERE dept_id = :currentDeptId";
+$count_stmt = $conn->prepare($count_query);
+$count_stmt->bindParam(':currentDeptId', $currentDeptId, PDO::PARAM_INT);
+$count_stmt->execute();
 $count_row = $count_stmt->fetch(PDO::FETCH_ASSOC);
 $total_rows = $count_row['total'];
 $total_pages = ceil($total_rows / $limit);
@@ -209,7 +222,7 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
                     content.innerHTML = ''; // ล้างข้อมูลเดิมก่อน
 
                     if (data.notifications && data.notifications.length > 0) {
-                      data.notifications.forEach(function(notification) {
+                      data.notifications.forEach(function (notification) {
                         var notificationElement = document.createElement('div');
                         notificationElement.classList.add('notification-item'); // เพิ่มคลาสสำหรับ CSS
 
@@ -302,32 +315,32 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
                       datasets: [{
                         label: 'Evaluation Scores - Chart 1',
                         data: [<?php echo $avgJobPerformance; ?>, <?php echo $avgQualityOfWork; ?>, <?php echo $avgTeamwork; ?>, <?php echo $avgAdaptability; ?>, <?php echo $avgTimeManagement; ?>, <?php echo $avgCreativity; ?>, <?php echo $avgPolicyAdherence; ?>],
-                        backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 235, 162, 0.5)'],
-                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 235, 162, 1)'],
-                        borderWidth: 1
+                  backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 235, 162, 0.5)'],
+                    borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 235, 162, 1)'],
+                      borderWidth: 1
                       }]
                     },
-                    options: {
-                      plugins: {
-                        legend: {
-                          display: true,
+                  options: {
+                    plugins: {
+                      legend: {
+                        display: true,
                           labels: {
-                            color: 'black'
-                          }
-                        }
-                      },
-                      scales: {
-                        x: {
-                          ticks: {
-                            display: false
-                          }
-                        },
-                        y: {
-                          beginAtZero: true,
-                          max: 5 // แกน Y เป็น 5
+                          color: 'black'
                         }
                       }
+                    },
+                    scales: {
+                      x: {
+                        ticks: {
+                          display: false
+                        }
+                      },
+                      y: {
+                        beginAtZero: true,
+                          max: 5 // แกน Y เป็น 5
+                      }
                     }
+                  }
                   });
 
                   // Chart 2
@@ -339,32 +352,32 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
                       datasets: [{
                         label: 'Evaluation Scores - Chart 2',
                         data: [<?php echo $avgSkillsKnowledge; ?>, <?php echo $avgBehaviorAttitude; ?>, <?php echo $avgCommunication; ?>, <?php echo $avgAbilityWorkUnderPress; ?>, <?php echo $avgLeadership; ?>, <?php echo $avgRelationship; ?>, <?php echo $avgAdaptabilityLearning; ?>],
-                        backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(54, 235, 162, 0.5)'],
-                        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(54, 235, 162, 1)'],
-                        borderWidth: 1
+                  backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(54, 235, 162, 0.5)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(54, 235, 162, 1)'],
+                      borderWidth: 1
                       }]
                     },
-                    options: {
-                      plugins: {
-                        legend: {
-                          display: true,
+                  options: {
+                    plugins: {
+                      legend: {
+                        display: true,
                           labels: {
-                            color: 'black'
-                          }
-                        }
-                      },
-                      scales: {
-                        x: {
-                          ticks: {
-                            display: false
-                          }
-                        },
-                        y: {
-                          beginAtZero: true,
-                          max: 5 // แกน Y เป็น 5
+                          color: 'black'
                         }
                       }
+                    },
+                    scales: {
+                      x: {
+                        ticks: {
+                          display: false
+                        }
+                      },
+                      y: {
+                        beginAtZero: true,
+                          max: 5 // แกน Y เป็น 5
+                      }
                     }
+                  }
                   });
                 </script>
               </div>
@@ -383,56 +396,63 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
                     <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 1</h5>
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                          <span class="fs-3">Job Perform Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                        <span class="fs-3">Job Perform Score:
                           <span class="text-success">
                             <?= $avgJobPerformance ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
-                          <span class="fs-3">Quality of Work Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                        <span class="fs-3">Quality of Work Score:
                           <span class="text-success">
                             <?= $avgQualityOfWork ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
-                          <span class="fs-3">Teamwork Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                        <span class="fs-3">Teamwork Score:
                           <span class="text-success">
                             <?= $avgTeamwork ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                          <span class="fs-3">Adaptability to Change Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                        <span class="fs-3">Adaptability to Change Score:
                           <span class="text-success">
                             <?= $avgAdaptability ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
-                          <span class="fs-3">Time Management Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                        <span class="fs-3">Time Management Score:
                           <span class="text-success">
                             <?= $avgTimeManagement ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
-                          <span class="fs-3">Creativity Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                        <span class="fs-3">Creativity Score:
                           <span class="text-success">
                             <?= $avgCreativity ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
-                          <span class="fs-3">Adherence to Policies and Regulations Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                        <span class="fs-3">Adherence to Policies and Regulations Score:
                           <span class="text-success">
                             <?= $avgPolicyAdherence ?>
                           </span>
@@ -450,56 +470,63 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
                     <h5 class="card-title mb-9 fw-semibold">Overview Summary Chart From 2</h5>
                     <div class="d-flex flex-column align-items-start">
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(75, 192, 192, 0.5);"></span>
-                          <span class="fs-3">Skills & Knowledge Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(75, 192, 192, 0.5);"></span>
+                        <span class="fs-3">Skills & Knowledge Score:
                           <span class="text-success">
                             <?= $avgSkillsKnowledge ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(153, 102, 255, 0.5);"></span>
-                          <span class="fs-3">Behavior & Attitude Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(153, 102, 255, 0.5);"></span>
+                        <span class="fs-3">Behavior & Attitude Score:
                           <span class="text-success">
                             <?= $avgBehaviorAttitude ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 159, 64, 0.5);"></span>
-                          <span class="fs-3">Communication Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 159, 64, 0.5);"></span>
+                        <span class="fs-3">Communication Score:
                           <span class="text-success">
                             <?= $avgCommunication ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 162, 235, 0.5);"></span>
-                          <span class="fs-3">Ability to Work Under Pressure Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 162, 235, 0.5);"></span>
+                        <span class="fs-3">Ability to Work Under Pressure Score:
                           <span class="text-success">
                             <?= $avgAbilityWorkUnderPress ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 99, 132, 0.5);"></span>
-                          <span class="fs-3">Leadership Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 99, 132, 0.5);"></span>
+                        <span class="fs-3">Leadership Score:
                           <span class="text-success">
                             <?= $avgLeadership ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(255, 206, 86, 0.5);"></span>
-                          <span class="fs-3">Relationship Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(255, 206, 86, 0.5);"></span>
+                        <span class="fs-3">Relationship Score:
                           <span class="text-success">
                             <?= $avgRelationship ?>
                           </span>
                         </span>
                       </div>
                       <div class="mb-3">
-                        <span class="round-8 rounded-circle me-2 d-inline-block" style="background-color: rgba(54, 235, 162, 0.5);"></span>
-                          <span class="fs-3">Adaptability to Learning Score: 
+                        <span class="round-8 rounded-circle me-2 d-inline-block"
+                          style="background-color: rgba(54, 235, 162, 0.5);"></span>
+                        <span class="fs-3">Adaptability to Learning Score:
                           <span class="text-success">
                             <?= $avgAdaptabilityLearning ?>
                           </span>
@@ -547,54 +574,76 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
 
         <!--  Row 2 -->
         <div class="row">
-          <div class="col-lg-12 d-flex align-items-stretch">
-            <div class="card w-100">
-              <div class="card-body">
-                <div class="d-sm-flex d-block align-items-center justify-content-between mb-7">
-                  <div class="mb-3 mb-sm-0">
-                    <h4 class="card-title fw-semibold">Employee evaluations</h4>
-                    <p class="card-subtitle">Employee appraisals</p>
+          <div class="container-fluid">
+            <div class="col-lg-12 d-flex align-items-stretch">
+              <div class="card w-100">
+                <div class="card-body">
+                  <div class="d-sm-flex d-block align-items-center justify-content-between mb-7">
+                    <div class="mb-3 mb-sm-0">
+                      <h4 class="card-title fw-semibold">Employee evaluations</h4>
+                      <p class="card-subtitle">Employee appraisals</p>
+                    </div>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table align-middle text-nowrap mb-0">
+                      <thead>
+                        <tr class="text-muted fw-semibold">
+                          <th scope="col">ID</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Department</th>
+                          <th scope="col">Total Evaluated</th>
+                          <th scope="col">Total Approved</th>
+                        </tr>
+                      </thead>
+                      <tbody class="border-top">
+                        <?php
+                        // แสดงข้อมูลพนักงานที่ดึงมาจากฐานข้อมูล
+                        foreach ($employeeResults as $row) {
+                            // ดึงค่าจริงจากฐานข้อมูลสำหรับ Total Evaluated
+                            $total_evaluated_query = "SELECT COUNT(*) AS total_evaluated
+                                                      FROM form_appraisal
+                                                      WHERE evaluator_id = :e_id";
+                            $evaluated_stmt = $conn->prepare($total_evaluated_query);
+                            $evaluated_stmt->bindParam(':e_id', $row['e_id'], PDO::PARAM_STR);
+                            $evaluated_stmt->execute();
+                            $evaluated_result = $evaluated_stmt->fetch(PDO::FETCH_ASSOC);
+                            $total_evaluated = $evaluated_result['total_evaluated'];
+
+                            // ดึงค่าจริงจากฐานข้อมูลสำหรับ Total Approved
+                            $total_approved_query = "SELECT COUNT(*) AS total_approved
+                                                     FROM form_appraisal
+                                                     WHERE evaluatee_id = :e_id";
+                            $approved_stmt = $conn->prepare($total_approved_query);
+                            $approved_stmt->bindParam(':e_id', $row['e_id'], PDO::PARAM_STR);
+                            $approved_stmt->execute();
+                            $approved_result = $approved_stmt->fetch(PDO::FETCH_ASSOC);
+                            $total_approved = $approved_result['total_approved'];
+
+                            // แสดงข้อมูลพนักงานในตาราง
+                            echo "<tr>
+                                    <td>{$row['e_id']}</td>
+                                    <td>{$row['firstname']} {$row['lastname']}</td>
+                                    <td>{$row['dept_name']}</td>
+                                    <td>$total_evaluated</td>
+                                    <td>$total_approved</td>
+                                  </tr>";
+                        }
+                    ?>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-                <div class="table-responsive">
-                  <table class="table align-middle text-nowrap mb-0">
-                    <thead>
-                      <tr class="text-muted fw-semibold">
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Department</th>
-                        <th scope="col">Total Evaluated</th>
-                        <th scope="col">Total Approved</th>
-                      </tr>
-                    </thead>
-                    <tbody class="border-top">
-                      <?php
-                                // แสดงข้อมูลพนักงานที่ดึงมาจากฐานข้อมูล
-                                foreach ($employeeResults as $row) {
-                                    // สมมุติข้อมูล Total Evaluated และ Total Approved
-                                    $total_evaluated = rand(1, 10); // สุ่มจำนวนที่ประเมิน
-                                    $total_approved = rand(0, $total_evaluated); // สุ่มจำนวนที่ได้รับการอนุมัติ
-                                    echo "<tr>
-                                            <td>{$row['e_id']}</td>
-                                            <td>{$row['firstname']} {$row['lastname']}</td>
-                                            <td>{$row['dept_name']}</td>
-                                            <td>$total_evaluated</td>
-                                            <td>$total_approved</td>
-                                          </tr>";
-                                }
-                                ?>
-                    </tbody>
-                  </table>
-                </div>
+              </div>
+            </div>
+            <div>
 
-                <div class="pagination">
-                  <?php
+              <div class="pagination">
+                <?php
                         // สร้างปุ่มสำหรับเปลี่ยนหน้า
                         for ($i = 1; $i <= $total_pages; $i++) {
                             echo "<a href='?page=$i' class='page-link'>$i</a> ";
                         }
                         ?>
-                </div>
               </div>
             </div>
           </div>
@@ -605,34 +654,34 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
   </div>
   <style>
     .box-root {
-  position: absolute;
-  top: 50px;
-  left: 0px;
-  width: 300px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
+      position: absolute;
+      top: 50px;
+      left: 0px;
+      width: 300px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-#notificationContent p {
-  margin: 0;
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-}
+    #notificationContent p {
+      margin: 0;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
 
-#notificationContent p:last-child {
-  border-bottom: none;
-}
+    #notificationContent p:last-child {
+      border-bottom: none;
+    }
 
-.notification-item {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-}
+    .notification-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
   </style>
   <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -642,4 +691,3 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
   <script src="../../assets/libs/simplebar/dist/simplebar.js"></script>
   <script src="../../assets/js/dashboard.js"></script>
 </body>
-</html>
