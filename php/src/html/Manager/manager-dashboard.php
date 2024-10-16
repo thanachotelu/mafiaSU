@@ -89,6 +89,19 @@ $avgTimeManagement = $averageResults['avg_time_management'] ?? 0;
 $avgCreativity = $averageResults['avg_creativity'] ?? 0;
 $avgPolicyAdherence = $averageResults['avg_policy_adherence'] ?? 0;
 
+$result_score1 = $avgJobPerformance + $avgQualityOfWork + $avgTeamwork + $avgAdaptability + $avgTimeManagement + $avgCreativity + $avgPolicyAdherence;
+if ($result_score1>=(80/100)*35){
+  $grade1 = 'คะแนน = A โดดเด่น';
+} else if($result_score1>=(60/100)*35){
+  $grade1 = 'คะแนน = B สูงกว่าเป้าหมาย';
+} else if($result_score1>=(40/100)*35){
+  $grade1 = 'คะแนน = C ได้ตามเป้าหมาย';
+} else if($result_score1>=(20/100)*35){
+  $grade1 = 'คะแนน = D ต้องปรับปรุง';
+} else {
+  $grade1 = 'คะแนน = E ยอมรับไม่ได้';
+};
+
 // ค่าเฉลี่ยสำหรับกราฟที่สอง
 $avgSkillsKnowledge = $averageResults['avg_skills_knowledge'] ?? 0;
 $avgBehaviorAttitude = $averageResults['avg_behavior_attitude'] ?? 0;
@@ -97,6 +110,19 @@ $avgAbilityWorkUnderPress = $averageResults['avg_ability_work_un_press'] ?? 0;
 $avgLeadership = $averageResults['avg_leadership'] ?? 0;
 $avgRelationship = $averageResults['avg_relationship'] ?? 0;
 $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
+
+$result_score2 = $avgSkillsKnowledge + $avgBehaviorAttitude + $avgCommunication + $avgAbilityWorkUnderPress + $avgLeadership + $avgRelationship + $avgAdaptabilityLearning;
+if ($result_score2>=(80/100)*35){
+  $grade2 = 'คะแนน = A โดดเด่น';
+} else if($result_score2>=(60/100)*35){
+  $grade2 = 'คะแนน = B สูงกว่าเป้าหมาย';
+} else if($result_score2>=(40/100)*35){
+  $grade2 = 'คะแนน = C ได้ตามเป้าหมาย';
+} else if($result_score2>=(20/100)*35){
+  $grade2 = 'คะแนน = D ต้องปรับปรุง';
+} else {
+  $grade2 = 'คะแนน = E ยอมรับไม่ได้';
+};
 ?>
 
 <!doctype html>
@@ -266,13 +292,24 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
         <!--  Row 1 -->
         <div class="row">
           <!-- Column for Chart 1 and Chart 2 -->
+          <div class="col-lg-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row alig n-items-start">
+                      <div class="col-8">
+                      <h5 class="card-title mb-9 fw-semibold">เกณฑ์คะแนน >=80% = A , >=60% = B , >=40% = C , >=20% = D , E</h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+          </div>
           <div class="col-lg-8 d-flex align-items-strech">
             <div class="card w-100">
               <div class="card-body">
                 <!-- Chart 1 Overview -->
                 <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
                   <div class="mb-3 mb-sm-0">
-                    <h5 class="card-title fw-semibold">Chart From 1 Overview</h5>
+                    <h5 class="card-title fw-semibold">Chart From 1 Overview <?php echo $grade1;?></h5>
                   </div>
                 </div>
                 <div class="container">
@@ -283,7 +320,7 @@ $avgAdaptabilityLearning = $averageResults['avg_adaptability_learning'] ?? 0;
                 <!-- Chart 2 Overview -->
                 <div class="d-sm-flex d-block align-items-center justify-content-between mb-9 mt-5">
                   <div class="mb-3 mb-sm-0">
-                    <h5 class="card-title fw-semibold">Chart From 2 Overview</h5>
+                    <h5 class="card-title fw-semibold">Chart From 2 Overview <? echo $grade2;?></h5>
                   </div>
                 </div>
                 <div class="container">

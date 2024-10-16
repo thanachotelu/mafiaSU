@@ -89,16 +89,16 @@ insert into departments(dept_id,dept_name)
 
 insert into employees (e_id, firstname, lastname, salary, dept_id, job_id) 
     values 
-        ('77024', 'Ernest', 'Mahoney', 52420, 1, 2),
+        ('77024', 'Ernest', 'Mahoney', 52420, 1, 3),
         ('70618', 'Carly', 'Conrad', 33737, 4, 3),
-        ('10613', 'Collin', 'Marquez', 30648, 4, 3),
+        ('10613', 'Collin', 'Marquez', 30648, 4, 1),
         ('05269', 'Katherine', 'Newman', 80210, 3, 1),
         ('03989', 'Ronald', 'Garcia', 69548, 1, 2),
         ('39340', 'Amy', 'Donovan', 82409, 2, 1),
         ('23746', 'Gerald', 'Marquez', 26457, 3, 3),
         ('06261', 'Mackenzie', 'Cook', 54811, 4, 2),
-        ('84731', 'Jason', 'Williamson', 69355, 1, 2),
-        ('28399', 'Tammy', 'Jones', 78458, 3, 1),
+        ('84731', 'Jason', 'Williamson', 69355, 1, 3),
+        ('28399', 'Tammy', 'Jones', 78458, 3, 2),
         ('00000', 'Thanachote','Keakwanwong', 25000, 1,3),
         ('11111', 'Akarawit','Juntarang', 100000, 1,1),
         ('22222', 'Prompoj','Kongmanakiattikun', 50000,2,2);
