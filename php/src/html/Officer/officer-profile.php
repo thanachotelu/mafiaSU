@@ -32,7 +32,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MAFIA APPRAISAL</title>
+    <title>Profile</title>
     <link rel="shortcut icon" type="image/png" href="../../assets/images/logos/favicon.png" />
     <link rel="stylesheet" href="../../assets/css/styles.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -66,7 +66,7 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./officer-dashboard.php" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-file-description"></i>
+                                <i class="ti ti-dashboard"></i>
                                 </span>
                                 <span class="hide-menu">Dashboard</span>
                             </a>
@@ -75,24 +75,12 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./officer-forms_check.php" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-layout-dashboard"></i>
+                                <i class="ti ti-article"></i>
                                 </span>
                                 <span class="hide-menu">Forms</span>
                             </a>
                         </li>
-
-                        <li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">AUTH</span>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./index.php" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-login"></i>
-                                </span>
-                                <span class="hide-menu">Logout</span>
-                            </a>
-                        </li>
+                        
                     </ul>
                 </nav>
                 <!-- End Sidebar navigation -->
@@ -105,37 +93,91 @@
             <!--  Header Start -->
             <header class="app-header">
                 <nav class="navbar navbar-expand-lg navbar-light">
-                    <ul class="navbar-nav">
-                        <li class="nav-item d-block d-xl-none">
-                            <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse"
-                                href="javascript:void(0)">
-                                <i class="ti ti-menu-2"></i>
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
-                        <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="../../assets/images/profile/user-1.jpg" alt="" width="35" height="35"
-                                        class="rounded-circle" />
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up"
-                                    aria-labelledby="drop2">
-                                    <div class="message-body">
-                                        <a href="./officer-profile.php"
-                                            class="d-flex align-items-center gap-2 dropdown-item">
-                                            <i class="ti ti-user fs-6"></i>
-                                            <p class="mb-0 fs-3">My Profile</p>
-                                        </a>
-                                        <a href="./../index.php"
-                                            class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item d-block d-xl-none">
+                    <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
+                        <i class="ti ti-menu-2"></i>
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link nav-icon-hover" href="javascript:void(0)" onclick="toggleNotificationBox()">
+                        <i class="ti ti-bell-ringing"></i>
+                        <div class="notification bg-primary rounded-circle"></div>
+                    </a>
+                    </li>
+                    <div id="notificationBox" class="box-root" style="display: none;">
+                    <div id="notificationContent">
                     </div>
+                    </div>
+                    <script>
+                    function toggleNotificationBox() {
+                        var box = document.getElementById('notificationBox');
+                        box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+
+                        // Fetch notifications from server when the box is displayed
+                        if (box.style.display === 'block') {
+                        fetchNotifications();
+                        }
+                    }
+
+                    function fetchNotifications() {
+                        fetch('../get_notifications.php')
+                        .then(response => response.json())
+                        .then(data => {
+                            var content = document.getElementById('notificationContent');
+                            content.innerHTML = ''; // ล้างข้อมูลเดิมก่อน
+
+                            if (data.notifications && data.notifications.length > 0) {
+                            data.notifications.forEach(function(notification) {
+                                var notificationElement = document.createElement('div');
+                                notificationElement.classList.add('notification-item'); // เพิ่มคลาสสำหรับ CSS
+
+                                // สร้างข้อความแสดงข้อมูล
+                                var subject = document.createElement('h4');
+                                subject.textContent = `Subject: ${notification.subjects}`; // แสดง subject
+                                notificationElement.appendChild(subject);
+
+                                var message = document.createElement('p');
+                                message.textContent = `Message: ${notification.detail}`; // แสดง detail
+                                notificationElement.appendChild(message);
+
+                                var date = document.createElement('small');
+                                date.textContent = `Date: ${notification.feedback_date}`; // แสดง feedback_date
+                                notificationElement.appendChild(date);
+
+                                content.appendChild(notificationElement);
+                            });
+                            } else {
+                            content.innerHTML = '<p>No new notifications</p>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching notifications:', error);
+                            document.getElementById('notificationContent').innerHTML = '<p>Error loading notifications</p>';
+                        });
+                    }
+                    </script>
+
+                </ul>
+                <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+                    <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <img src="../../assets/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                        <div class="message-body">
+                            <a href="./officer-profile.php" class="d-flex align-items-center gap-2 dropdown-item">
+                            <i class="ti ti-user fs-6"></i>
+                            <p class="mb-0 fs-3">My Profile</p>
+                            </a>
+                            <a href="./../index.php" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                        </div>
+                        </div>
+                    </li>
+                    </ul>
+                </div>
                 </nav>
             </header>
             <!--  Header End -->
@@ -374,6 +416,36 @@
         margin: 0 10px 0 0;
         -webkit-transition: all 0.3s ease-in-out;
         transition: all 0.3s ease-in-out;
+    }
+
+    .box-root {
+        position: absolute;
+        top: 50px;
+        left: 0px;
+        width: 300px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #notificationContent p {
+        margin: 0;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #notificationContent p:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
     }
     </style>
 </body>

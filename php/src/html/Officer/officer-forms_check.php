@@ -78,7 +78,7 @@ try {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MAFIA APPRAISAL</title>
+    <title>Forms</title>
     <link rel="shortcut icon" type="image/png" href="../../assets/images/logos/favicon.png" />
     <link rel="stylesheet" href="../../assets/css/styles.min.css" />
 </head>
@@ -105,28 +105,18 @@ try {
                         </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./officer-dashboard.php" aria-expanded="false">
-                                <span><i class="ti ti-file-description"></i></span>
+                                <span><i class="ti ti-dashboard"></i></span>
                                 <span class="hide-menu">Dashboard</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./officer-forms_check.php" aria-expanded="false">
-                                <span><i class="ti ti-layout-dashboard"></i></span>
+                                <span><i class="ti ti-article"></i></span>
                                 <span class="hide-menu">Forms</span>
                             </a>
                         </li>
 
-                        <li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">AUTH</span>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./../index.php" aria-expanded="false">
-                                <span><i class="ti ti-login"></i></span>
-                                <span class="hide-menu">Logout</span>
-                            </a>
-                        </li>
 
                     </ul>
                 </nav>
