@@ -286,7 +286,7 @@
         <a href="manager-dashboard.php" class="btn btn-info btn">
             <i class="ti ti-arrow-left"></i> ย้อนกลับ
         </a>
-    </div>
+      </div>
         <h3>คะแนนประเมินของ <b><?php echo ($user['firstname'].' '.$user['lastname']); ?> </b> แผนก : <b><?php echo ($user['dept_name']); ?></b> ตำแหน่ง : <b><?php echo ($user['job_name']); ?></b></h3>
         <!--  Row 1 -->
         <div class="row">
