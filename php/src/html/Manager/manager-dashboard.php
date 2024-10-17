@@ -180,6 +180,15 @@ if ($result_score2>=(80/100)*35){
             </li>
 
             <li class="sidebar-item">
+              <a class="sidebar-link" href="./evaluated_list.php" aria-expanded="false">
+                <span>
+                  <i class="ti ti-article"></i>
+                </span>
+                <span class="hide-menu">Evaluated List</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
               <a class="sidebar-link" href="./manager-feedback.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
@@ -650,6 +659,7 @@ if ($result_score2>=(80/100)*35){
                                     <td>{$row['dept_name']}</td>
                                     <td>$total_evaluated</td>
                                     <td>$total_approved</td>
+                                    <td><a href='person-score.php?e_id={$row['e_id']}' class='btn btn-primary btn-sm'>View Score</a></td>
                                   </tr>";
                         }
                     ?>

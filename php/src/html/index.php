@@ -25,15 +25,6 @@
                 </a>
                 <form action="login_cheker.php" method="POST">
                   <div class="mb-3">
-                      <label for="jobPosition" class="form-label">Job Position</label>
-                      <select class="form-select" id="jobPosition" name="jobPosition" required>
-                          <option value="" disabled selected>Select your job position</option>
-                          <option value="officer">Officer</option>
-                          <option value="maneger">Maneger</option>
-                          <option value="chief">Chief</option>
-                      </select>
-                  </div>
-                  <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input  class="form-control" id="username" name="username" required>
                     </div>
