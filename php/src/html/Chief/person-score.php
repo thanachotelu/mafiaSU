@@ -1,15 +1,18 @@
 <?php
     include "../connection.php";
-    session_start();
-
-    $currentUserId = $_SESSION['currentUserId'];
+    if (isset($_GET['e_id'])) {
+      $e_id = $_GET['e_id'];
     
-    $userSql = "SELECT firstname, lastname FROM employees WHERE e_id = :currentUserId";
-    $userQuery = $conn->prepare($userSql);
-    $userQuery->bindParam(':currentUserId', $currentUserId);
-    $userQuery->execute();
-    $user = $userQuery->fetch(PDO::FETCH_ASSOC);
+      $userSql = "SELECT firstname, lastname,job_name,dept_name 
+        FROM employees e JOIN departments d ON (e.dept_id = d.dept_id)
+        JOIN jobs j ON (e.job_id = j.job_id)
+        WHERE e_id = :e_id";
+      $userQuery = $conn->prepare($userSql);
+      $userQuery->bindParam(':e_id', $e_id, PDO::PARAM_STR);
+      $userQuery->execute();
+      $user = $userQuery->fetch(PDO::FETCH_ASSOC);
 
+    }
     $sql = "SELECT 
             -- ค่าเฉลี่ยจาก form_topic1_info
             ROUND(AVG(t1.job_perform), 2) AS avg_job_performance, 
@@ -31,10 +34,10 @@
             LEFT JOIN form_topic1_info t1 ON (t1.form_id = a.form_id)
             LEFT JOIN form_topic2_info t2 ON (t2.form_id = a.form_id)
             JOIN employees e ON (a.evaluatee_id = e.e_id)
-            WHERE e.e_id = :currentUserId;";
+            WHERE e.e_id = :e_id;";
 
     $query = $conn->prepare($sql);
-    $query->bindParam(':currentUserId', $currentUserId);
+    $query->bindParam(':e_id', $e_id);
     $query->execute();
     $result = $query->fetch(PDO::FETCH_ASSOC);
 
@@ -65,6 +68,44 @@
     $sumForm2 = $avgSkillsKnowledge + $avgBehaviorAttitude + $avgCommunication + $avgAbilityWorkUnderPress + 
     $avgLeadership + $avgRelationship + $avgAdaptabilityLearning;
     $percentForm2 = round(($sumForm2 / 35) * 100, 2); // Assuming max score for each item is 5, and there are 7 items
+
+    $resultsumForm = $sumForm1 + $sumForm2;
+
+    if ($sumForm1>=(80/100)*35){
+      $grade1 = 'A : โดดเด่น';
+    } else if($sumForm1>=(60/100)*35){
+      $grade1 = 'B : สูงกว่าเป้าหมาย';
+    } else if($sumForm1>=(40/100)*35){
+      $grade1 = 'C : ได้ตามเป้าหมาย';
+    } else if($sumForm1>=(20/100)*35){
+      $grade1 = 'D : ต้องปรับปรุง';
+    } else {
+      $grade1 = 'E : ยอมรับไม่ได้';
+    };
+
+    if ($sumForm2>=(80/100)*35){
+      $grade2 = 'A : โดดเด่น';
+    } else if($sumForm2>=(60/100)*35){
+      $grade2 = 'B : สูงกว่าเป้าหมาย';
+    } else if($sumForm2>=(40/100)*35){
+      $grade2 = 'C : ได้ตามเป้าหมาย';
+    } else if($sumForm2>=(20/100)*35){
+      $grade2 = 'D : ต้องปรับปรุง';
+    } else {
+      $grade2 = 'E : ยอมรับไม่ได้';
+    };
+
+    if ($resultsumForm>=(80/100)*70){
+      $resultgrade = 'A : โดดเด่น';
+    } else if($resultsumForm>=(60/100)*70){
+      $resultgrade = 'B : สูงกว่าเป้าหมาย';
+    } else if($resultsumForm>=(40/100)*70){
+      $resultgrade = 'C : ได้ตามเป้าหมาย';
+    } else if($resultsumForm>=(20/100)*70){
+      $resultgrade = 'D : ต้องปรับปรุง';
+    } else {
+      $resultgrade = 'E : ยอมรับไม่ได้';
+    };
 ?>
 
 <!doctype html>
@@ -105,7 +146,7 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./officer-dashboard.php" aria-expanded="false">
+              <a class="sidebar-link" href="./chief-dashboard.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-dashboard"></i>
                 </span>
@@ -114,11 +155,19 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./officer-forms_check.php" aria-expanded="false">
+              <a class="sidebar-link" href="./chief-forms_check.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
                 <span class="hide-menu">Forms</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./chief-feedback.php" aria-expanded="false">
+                <span>
+                  <i class="ti ti-file-description"></i>
+                </span>
+                <span class="hide-menu">Feedback</span>
               </a>
             </li>
 
@@ -223,7 +272,12 @@
       </header>
       <!--  Header End -->
       <div class="container-fluid">
-        <h3>คะแนนประเมินของ <b><?php echo ($user['firstname'].' '.$user['lastname']); ?></b> </h3>
+      <div class="mb-3">
+        <a href="chief-dashboard.php" class="btn btn-info btn">
+            <i class="ti ti-arrow-left"></i> ย้อนกลับ
+        </a>
+      </div>
+        <h3>คะแนนประเมินของ <b><?php echo ($user['firstname'].' '.$user['lastname']); ?> </b> แผนก : <b><?php echo ($user['dept_name']); ?></b> ตำแหน่ง : <b><?php echo ($user['job_name']); ?></b></h3>
         <!--  Row 1 -->
         <div class="row">
           <!-- Column for data 1 and  2 -->
@@ -243,6 +297,7 @@
                         </span>
                         <h5><b>คะแนน:</b> การประเมินด้านพฤติกรรมการปฏิบัติงาน</h5>
                       </div>
+                      <h5><b><?php echo $grade1; ?></b></h5>
                       <div class="progress-container">
                         <h4 class="progress-percentage"><b><?php echo $percentForm1; ?>%</b> (<?php echo $sumForm1;?> คะแนน)</h4>
                       </div>
@@ -259,6 +314,7 @@
                         </span>
                         <h5><b>คะแนน:</b> การประเมินด้านพฤติกรรมของบุคคล</h5>
                       </div>
+                      <h5><b><?php echo $grade2; ?></b></h5>
                       <div class="progress-container">
                         <h4 class="progress-percentage"><b><?php echo $percentForm2; ?>%</b> (<?php echo $sumForm2;?> คะแนน)</h4>
                       </div>
@@ -383,6 +439,15 @@
           </div>
         </div>
 
+        <div class="card">
+                  <div class="card-body">
+                    <div class="row alig n-items-start">
+                      <div class="col-8">
+                      <h5 class="card-title mb-9">คะแนนรวมของ <b><?php echo ($user['firstname'].' '.$user['lastname']); ?></b> คือ <b><?php echo $resultgrade; ?></b></h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
       </div>
     </div>
   </div>

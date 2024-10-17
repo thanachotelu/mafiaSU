@@ -81,6 +81,15 @@ if (!$user) {
                         </li>
 
                         <li class="sidebar-item">
+                            <a class="sidebar-link" href="./evaluated_list.php" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-article"></i>
+                                </span>
+                                <span class="hide-menu">Evaluated List</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
                             <a class="sidebar-link" href="./manager-feedback.php" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-file-description"></i>

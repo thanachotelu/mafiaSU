@@ -1,43 +1,34 @@
 <?php
-  include "../connection.php";
-  session_start();
-  $currentUserId = $_SESSION['currentUserId'];
+include '../connection.php';
 
+if (isset($_GET['e_id'])) {
+    $e_id = $_GET['e_id'];
 
-  // เช็คการเชื่อมต่อ
-  if (!$conn) {
-    die("Connection failed: " . pg_last_error());
-  }
+    $evaluator_query = "SELECT firstname, lastname FROM employees WHERE e_id = :e_id";
+    $evaluator_stmt = $conn->prepare($evaluator_query);
+    $evaluator_stmt->bindParam(':e_id', $e_id, PDO::PARAM_STR);
+    $evaluator_stmt->execute();
+    $evaluator = $evaluator_stmt->fetch(PDO::FETCH_ASSOC);
 
-  // จำนวนข้อมูลต่อหน้า
-  $limit = 7;
-  $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-  $offset = ($page - 1) * $limit;
+    if ($evaluator) {
+        $evaluator_name = $evaluator['firstname'] . " " . $evaluator['lastname'];
+    } else {
+        $evaluator_name = "Unknown Evaluator";
+    }
 
-  // ดึงข้อมูลพนักงาน
-  $query = "SELECT e.e_id, e.firstname, e.lastname, d.dept_name
-            FROM employees e
-            JOIN departments d ON e.dept_id = d.dept_id
-            ORDER BY d.dept_id
-            LIMIT :limit OFFSET :offset";
+    $evaluation_query = "SELECT f.*, e.firstname, e.lastname
+                         FROM form_appraisal_hist f
+                         JOIN employees e ON f.evaluatee_id = e.e_id
+                         WHERE f.evaluator_id = :e_id";
+    $stmt = $conn->prepare($evaluation_query);
+    $stmt->bindParam(':e_id', $e_id, PDO::PARAM_STR);
+    $stmt->execute();
+    $evaluations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  $stmt = $conn->prepare($query);
-  $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-  $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-  $stmt->execute();
-
-  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-  if ($result === false) {
-      die("Error in SQL query: " . $conn->errorInfo()[2]);
-  }
-
-  // ดึงจำนวนข้อมูลทั้งหมด
-  $count_query = "SELECT COUNT(*) AS total FROM employees";
-  $count_stmt = $conn->query($count_query);
-  $count_row = $count_stmt->fetch(PDO::FETCH_ASSOC);
-  $total_rows = $count_row['total'];
-  $total_pages = ceil($total_rows / $limit);
+} else {
+  echo "Invalid access.";
+  exit();
+}
 ?>
 
 
@@ -80,7 +71,7 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./chief-dashboard.php" aria-expanded="false">
+              <a class="sidebar-link" href="./manager-dashboard.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-dashboard"></i>
                 </span>
@@ -89,7 +80,7 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./chief-forms_check.php" aria-expanded="false">
+              <a class="sidebar-link" href="./manager-forms_check.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
@@ -98,7 +89,16 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./chief-feedback.php" aria-expanded="false">
+              <a class="sidebar-link" href="./evaluated_list.php" aria-expanded="false">
+                <span>
+                  <i class="ti ti-article"></i>
+                </span>
+                <span class="hide-menu">Evaluated List</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./manager-feedback.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
                 </span>
@@ -194,7 +194,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
-                    <a href="./chief-profile.php" class="d-flex align-items-center gap-2 dropdown-item">
+                    <a href="./manager-profile.php" class="d-flex align-items-center gap-2 dropdown-item">
                       <i class="ti ti-user fs-6"></i>
                       <p class="mb-0 fs-3">My Profile</p>
                     </a>
@@ -215,56 +215,42 @@
           <div class="card w-100">
             <div class="card-body">
               <div class="d-sm-flex d-block align-items-center justify-content-between mb-7">
-                <div class="mb-3 mb-sm-0">
-                  <h4 class="card-title fw-semibold">Employee evaluations</h4>
-                  <p class="card-subtitle">Employee appraisals</p>
-                </div>
               </div>
               <div class="table-responsive">
                 <table class="table align-middle text-nowrap mb-0">
-                  <thead>
-                    <tr class="text-muted fw-semibold">
-                      <th scope="col">ID</th>
-                      <th scope="col">Name</th>
-                      <th scope="col">Department</th>
-                      <th scope="col">Total Evaluated</th>
-                      <th scope="col">Total Approved</th>
-                    </tr>
-                  </thead>
                   <tbody class="border-top">
                     <?php
-                        // แสดงข้อมูลพนักงานที่ดึงมาจากฐานข้อมูล
-                        foreach ($result as $row) {
-                            // ดึงค่าจริงจากฐานข้อมูลสำหรับ Total Evaluated
-                            $total_evaluated_query = "SELECT COUNT(*) AS total_evaluated
-                                                      FROM form_appraisal
-                                                      WHERE evaluator_id = :e_id";
-                            $evaluated_stmt = $conn->prepare($total_evaluated_query);
-                            $evaluated_stmt->bindParam(':e_id', $row['e_id'], PDO::PARAM_STR);
-                            $evaluated_stmt->execute();
-                            $evaluated_result = $evaluated_stmt->fetch(PDO::FETCH_ASSOC);
-                            $total_evaluated = $evaluated_result['total_evaluated'];
-
-                            // ดึงค่าจริงจากฐานข้อมูลสำหรับ Total Approved
-                            $total_approved_query = "SELECT COUNT(*) AS total_approved
-                                                     FROM form_appraisal
-                                                     WHERE evaluatee_id = :e_id";
-                            $approved_stmt = $conn->prepare($total_approved_query);
-                            $approved_stmt->bindParam(':e_id', $row['e_id'], PDO::PARAM_STR);
-                            $approved_stmt->execute();
-                            $approved_result = $approved_stmt->fetch(PDO::FETCH_ASSOC);
-                            $total_approved = $approved_result['total_approved'];
-
-                            // แสดงข้อมูลพนักงานในตาราง
-                            echo "<tr>
-                                    <td>{$row['e_id']}</td>
-                                    <td>{$row['firstname']} {$row['lastname']}</td>
-                                    <td>{$row['dept_name']}</td>
-                                    <td>$total_evaluated</td>
-                                    <td>$total_approved</td>
-                                    <td><a href='person-score.php?e_id={$row['e_id']}' class='btn btn-primary btn-sm'>View Score</a></td>
-                                  </tr>";
-                        }
+                        if ($evaluations) {
+                          echo "<h2>Evaluation Details for Employee ID: <b>$e_id $evaluator_name</b> </h2>";
+                          echo "<table class='table'>
+                                  <thead>
+                                    <tr>
+                                      <th>Form ID</th>
+                                      <th>Evaluatee Name</th>
+                                      <th>Evaluation Date</th>
+                                      <th>Action</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>";
+                  
+                          foreach ($evaluations as $evaluation) {
+                              $evaluatee_name = $evaluation['firstname'] . " " . $evaluation['lastname'];
+                              echo "<tr>
+                                      <td>{$evaluation['form_id']}</td>
+                                      <td>$evaluatee_name</td>
+                                      <td>{$evaluation['form_date']}</td>
+                                      <td>
+                                        <a href='evaluation-detail.php?form_id={$evaluation['form_id']}&topic_id={$evaluation['topic_id']}&e_id=$e_id' class='btn btn-info btn-sm'>View Form</a>
+                                      </td>
+                                    </tr>";
+                          }
+                          echo "</tbody></table>";
+                          echo "<div class='mt-3'>
+                                  <a href='evaluated_list.php' class='btn btn-info btn'>ย้อนกลับ</a>
+                                </div>";
+                      } else {
+                          echo "<p>No evaluations found for this employee.</p>";
+                      }
                     ?>
                   </tbody>
                 </table>
@@ -273,15 +259,6 @@
           </div>
         </div>
         <div>
-
-          <div class="pagination">
-            <?php
-                        // สร้างปุ่มสำหรับเปลี่ยนหน้า
-                        for ($i = 1; $i <= $total_pages; $i++) {
-                            echo "<a href='?page=$i' class='page-link'>$i</a> ";
-                        }
-                        ?>
-          </div>
         </div>
       </div>
     </div>

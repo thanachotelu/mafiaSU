@@ -80,7 +80,7 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./chief-dashboard.php" aria-expanded="false">
+              <a class="sidebar-link" href="./manager-dashboard.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-dashboard"></i>
                 </span>
@@ -89,7 +89,7 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./chief-forms_check.php" aria-expanded="false">
+              <a class="sidebar-link" href="./manager-forms_check.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
@@ -98,7 +98,16 @@
             </li>
 
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./chief-feedback.php" aria-expanded="false">
+              <a class="sidebar-link" href="./evaluated_list.php" aria-expanded="false">
+                <span>
+                  <i class="ti ti-article"></i>
+                </span>
+                <span class="hide-menu">Evaluated List</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./manager-feedback.php" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
                 </span>
@@ -194,7 +203,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
-                    <a href="./chief-profile.php" class="d-flex align-items-center gap-2 dropdown-item">
+                    <a href="./manager-profile.php" class="d-flex align-items-center gap-2 dropdown-item">
                       <i class="ti ti-user fs-6"></i>
                       <p class="mb-0 fs-3">My Profile</p>
                     </a>
@@ -262,7 +271,9 @@
                                     <td>{$row['dept_name']}</td>
                                     <td>$total_evaluated</td>
                                     <td>$total_approved</td>
-                                    <td><a href='person-score.php?e_id={$row['e_id']}' class='btn btn-primary btn-sm'>View Score</a></td>
+                                    <td><a href='person-score.php?e_id={$row['e_id']}' class='btn btn-primary btn-sm'>View Score</a>
+                                        <a href='evaluation-details.php?e_id={$row['e_id']}' class='btn btn-secondary btn-sm'>View Detail</a>
+                                    </td>
                                   </tr>";
                         }
                     ?>
